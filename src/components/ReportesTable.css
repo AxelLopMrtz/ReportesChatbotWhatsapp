@@ -1,0 +1,59 @@
+.tabla-reportes-container {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #f1f9ff;
+  border-radius: 10px;
+}
+
+.tabla-reportes-container h3 {
+  margin-bottom: 1rem;
+  color: #069b5d;
+}
+
+.tabla-reportes {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-reportes th,
+.tabla-reportes td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.tabla-reportes th {
+  background-color: #06be72;
+  color: white;
+}
+
+.tabla-reportes tr:nth-child(even) {
+  background-color: #eef6fc;
+}
+
+.estado {
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.estado.completado {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.estado.rechazado {
+  background-color: #f44336;
+  color: white;
+}
+
+.estado.proceso {
+  background-color: #ff9800;
+  color: white;
+}
+
+.estado.desconocido {
+  background-color: #9e9e9e;
+  color: white;
+}

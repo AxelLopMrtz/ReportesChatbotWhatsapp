@@ -1,0 +1,151 @@
+:root {
+  --azul-claro: #d2faff;
+  --celeste: #9fd3e7;
+  --azul: #688db3;
+  --verde-suave: #60ab7a;
+  --verde-fuerte: #066f4d;
+  --blanco: #ffffff;
+  --gris-claro: #066f4d;
+  --sombra: 0 10px 20px rgba(0, 0, 0, 0.08);
+  --sombra-hover: 0 14px 24px rgba(0, 0, 0, 0.15);
+  --borde-radius: 12px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--gris-claro);
+  color: var(--verde-fuerte);
+  overflow-x: hidden;
+}
+
+/* ----------------------- ENCABEZADOS ----------------------- */
+h1, h2 {
+  text-align: center;
+  color: var(--verde-fuerte);
+  margin-top: 2rem;
+  font-weight: bold;
+}
+
+/* ----------------------- CONTENEDORES ----------------------- */
+.container {
+  max-width: 1200px;
+  margin: auto;
+  background-color: var(--blanco);
+  padding: 2rem;
+  border-radius: var(--borde-radius);
+  box-shadow: var(--sombra);
+  position: relative;
+  z-index: 2;
+}
+
+/* ----------------------- FORMULARIOS ----------------------- */
+input[type="text"],
+input[type="password"],
+input[type="file"] {
+  width: 100%;
+  padding: 0.75rem;
+  margin: 0.5rem 0 1rem;
+  border: 2px solid var(--verde-fuerte);
+  border-radius: var(--borde-radius);
+  background-color: var(--blanco);
+  color: var(--verde-fuerte);
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--azul);
+  box-shadow: 0 0 6px var(--azul);
+}
+
+button {
+  background-color: var(--verde-fuerte);
+  color: var(--blanco);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: bold;
+  border-radius: var(--borde-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: block;
+  margin: auto;
+}
+
+button:hover {
+  background-color: var(--verde-suave);
+  color: var(--azul);
+}
+
+/* ----------------------- TABLAS ----------------------- */
+table {
+  width: 100%;
+  margin: 2rem auto;
+  border-collapse: collapse;
+  background-color: var(--blanco);
+  border-radius: var(--borde-radius);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+
+th {
+  background-color: var(--verde-fuerte);
+  color: var(--blanco);
+  text-align: left;
+  padding: 0.75rem;
+}
+
+td {
+  padding: 0.75rem;
+  border-top: 1px solid #ccc;
+  color: var(--verde-fuerte);
+  background-color: var(--azul-claro);
+}
+
+/* ----------------------- TARJETAS ----------------------- */
+.card {
+  border-radius: 16px;
+  box-shadow: var(--sombra);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-hover);
+}
+
+.card-body h4 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.2rem;
+  color: white;
+}
+
+.card-body p {
+  font-size: 0.95rem;
+  color: white;
+  margin: 0;
+}
+
+/* ----------------------- MAPA LEAFLET ----------------------- */
+.leaflet-container {
+  border-radius: 15px;
+  box-shadow: var(--sombra);
+  height: 400px !important;
+  width: 100% !important;
+  margin: 0 auto;
+}
+
+/* ----------------------- RESPONSIVE ----------------------- */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  table, thead, tbody, th, td, tr {
+    font-size: 0.9rem;
+  }
+}

@@ -1,0 +1,58 @@
+.sidebar-slide {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 240px;
+  height: 100%;
+  background-color: #055e3d;
+  color: white;
+  transition: left 0.3s ease;
+  z-index: 999;
+  padding-top: 80px;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+}
+
+.sidebar-slide.visible {
+  left: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between; /* ✅ para separar título e ícono */
+  align-items: center;
+  padding: 1rem;
+  background-color: #06be72;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+
+.sidebar-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.close-btn {
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.sidebar-options {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-options li {
+  padding: 15px 20px;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.sidebar-options li:hover {
+  background-color: #06be72;
+}

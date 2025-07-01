@@ -1,0 +1,8 @@
+/* src/components/SummaryCards.css */
+.summary-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  justify-content: flex-start;
+}
