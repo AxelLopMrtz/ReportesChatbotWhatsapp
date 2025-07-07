@@ -4,16 +4,18 @@ import SummaryCards from "./SummaryCards";
 import ReportesTable from "./ReportesTable";
 import MapaReportes from "./MapaReportes";
 import Sidebar from "./Sidebar";
+import HistorialMensajes from "./HistorialMensajes";
+import Usuarios from "./Usuarios"; // ✅ Agregado
 
 const Menu = ({ usuario }) => {
   const [menuVisible, setMenuVisible] = useState(false);
-  const [vista, setVista] = useState("historial");
+  const [vista, setVista] = useState("inicio");
 
   const handleLogout = () => window.location.reload();
 
   const renderVista = () => {
     switch (vista) {
-      case "historial":
+      case "inicio":
         return (
           <>
             <h2 className="mb-4">Bienvenido, {usuario.username}</h2>
@@ -22,12 +24,30 @@ const Menu = ({ usuario }) => {
             <div className="row mt-4"><ReportesTable /></div>
           </>
         );
+      case "historial":
+        return (
+          <div className="row mt-4">
+            <HistorialMensajes />
+          </div>
+        );
       case "ciudadanos":
-        return <h2>Vista de Ciudadanos (en desarrollo)</h2>;
+        return (
+          <div className="row mt-4">
+            <h2>Vista de Ciudadanos (en desarrollo)</h2>
+          </div>
+        );
       case "reportes":
-        return <h2>Vista de Reportes (en desarrollo)</h2>;
+        return (
+          <div className="row mt-4">
+            <ReportesTable />
+          </div>
+        );
       case "config":
-        return <h2>Configuración del sistema (en desarrollo)</h2>;
+        return (
+          <div className="row mt-4">
+            <Usuarios /> {/* ✅ Componente mostrado aquí */}
+          </div>
+        );
       default:
         return null;
     }
@@ -42,13 +62,13 @@ const Menu = ({ usuario }) => {
       />
       <Sidebar
         visible={menuVisible}
+        vistaActual={vista}
         onClose={() => setMenuVisible(false)}
         onSelect={(v) => {
           setVista(v);
           setMenuVisible(false);
         }}
       />
-
       <div className="container mt-5">
         {renderVista()}
       </div>

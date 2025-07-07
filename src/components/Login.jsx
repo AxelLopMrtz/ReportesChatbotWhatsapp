@@ -8,7 +8,18 @@ function Login({ onLogin }) {
 
   useEffect(() => {
     document.title = 'Whatsreporte - Iniciar Sesión'; // ✅ Título de la pestaña
-    initThreeBackground('three-bg');
+
+    // ✅ Evita duplicar el canvas si ya existe
+    const existingCanvas = document.querySelector('#three-bg canvas');
+    if (!existingCanvas) {
+      initThreeBackground('three-bg');
+    }
+
+    // 🧼 Limpia el fondo al desmontar el componente
+    return () => {
+      const container = document.getElementById('three-bg');
+      if (container) container.innerHTML = '';
+    };
   }, []);
 
   const handleLogin = () => {

@@ -1,3 +1,4 @@
+/* Fondo semitransparente centrado */
 .login-overlay {
   position: absolute;
   top: 50%;
@@ -7,27 +8,31 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  pointer-events: none; /* deja pasar el fondo 3D */
 }
 
+/* Caja del login con estilo glass y sombra suave */
 .login-box {
-  background: rgba(255, 255, 255, 0.1);
+  pointer-events: all; /* activa inputs y botones */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
   border-radius: 15px;
   padding: 30px 40px;
-  backdrop-filter: blur(10px);
   box-shadow: 0 0 25px rgba(0, 255, 204, 0.2);
-  text-align: center;
   border: 1px solid rgba(0, 255, 204, 0.3);
   max-width: 400px;
   width: 100%;
+  text-align: center;
 }
 
+/* Título del login */
 .login-title {
   color: #00ffcc;
   margin-bottom: 20px;
   font-size: 1.8rem;
 }
 
+/* Inputs del formulario */
 .login-input {
   width: 100%;
   padding: 12px 15px;
@@ -37,8 +42,11 @@
   outline: none;
   font-size: 1rem;
   box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
+/* Botón del login */
 .login-button {
   width: 100%;
   padding: 12px;

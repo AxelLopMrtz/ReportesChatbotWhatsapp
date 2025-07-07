@@ -1,8 +1,15 @@
 import React from "react";
 import "./Sidebar.css";
-import { FaTimes, FaInbox, FaUsers, FaFileAlt, FaCogs } from "react-icons/fa";
+import {
+  FaTimes,
+  FaHome,
+  FaInbox,
+  FaUsers,
+  FaFileAlt,
+  FaUserCog,
+} from "react-icons/fa";
 
-const Sidebar = ({ visible, onClose, onSelect }) => {
+const Sidebar = ({ visible, onClose, onSelect, vistaActual }) => {
   return (
     <div className={`sidebar-slide ${visible ? "visible" : ""}`}>
       <div className="sidebar-header">
@@ -10,10 +17,36 @@ const Sidebar = ({ visible, onClose, onSelect }) => {
         <FaTimes className="close-btn" onClick={onClose} />
       </div>
       <ul className="sidebar-options">
-        <li onClick={() => onSelect("historial")}><FaInbox /> Historial</li>
-        <li onClick={() => onSelect("ciudadanos")}><FaUsers /> Ciudadanos</li>
-        <li onClick={() => onSelect("reportes")}><FaFileAlt /> Reportes</li>
-        <li onClick={() => onSelect("config")}><FaCogs /> Configuración</li>
+        <li
+          className={vistaActual === "inicio" ? "activo" : ""}
+          onClick={() => onSelect("inicio")}
+        >
+          <FaHome /> Inicio
+        </li>
+        <li
+          className={vistaActual === "historial" ? "activo" : ""}
+          onClick={() => onSelect("historial")}
+        >
+          <FaInbox /> Historial de Mensajes
+        </li>
+        <li
+          className={vistaActual === "ciudadanos" ? "activo" : ""}
+          onClick={() => onSelect("ciudadanos")}
+        >
+          <FaUsers /> Ciudadanos
+        </li>
+        <li
+          className={vistaActual === "reportes" ? "activo" : ""}
+          onClick={() => onSelect("reportes")}
+        >
+          <FaFileAlt /> Reportes
+        </li>
+        <li
+          className={vistaActual === "config" ? "activo" : ""}
+          onClick={() => onSelect("config")}
+        >
+          <FaUserCog /> Gestión de Usuarios
+        </li>
       </ul>
     </div>
   );

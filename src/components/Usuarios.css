@@ -1,0 +1,58 @@
+/* Usuarios.css */
+
+.tabla-container {
+  background: #f8f9fc;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.08);
+}
+
+.tabla-container h3 {
+  color: #008c58;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.tabla-container input,
+.tabla-container select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.tabla-container button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #06be72;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.tabla-reportes {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.tabla-reportes th {
+  background-color: #06be72;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+.tabla-reportes td {
+  background-color: #e7fdf4;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.tabla-reportes td button {
+  margin-right: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
