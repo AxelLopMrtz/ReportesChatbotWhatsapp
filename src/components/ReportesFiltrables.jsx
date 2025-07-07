@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
-import './ReportesFiltrables.css';
+import DatePicker from "react-datepicker";
+import Select from "react-select";
+import "react-datepicker/dist/react-datepicker.css";
+import "./ReportesFiltrables.css";
 
 const ReportesFiltrables = () => {
   const [reportes, setReportes] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [desde, setDesde] = useState("");
-  const [hasta, setHasta] = useState("");
+  const [desde, setDesde] = useState(null);
+  const [hasta, setHasta] = useState(null);
+  const [ciudadano, setCiudadano] = useState(null);
+  const [telefono, setTelefono] = useState(null);
 
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL
@@ -19,8 +24,6 @@ const ReportesFiltrables = () => {
         if (Array.isArray(data)) {
           setReportes(data);
           setFiltered(data);
-        } else {
-          console.error("La API no devolvió un array:", data);
         }
         setLoading(false);
       })
@@ -31,65 +34,117 @@ const ReportesFiltrables = () => {
   }, []);
 
   useEffect(() => {
-    filtrarPorFechas();
-  }, [desde, hasta]);
+    filtrar();
+  }, [desde, hasta, ciudadano, telefono]);
 
-  const filtrarPorFechas = () => {
-    if (!desde && !hasta) {
-      setFiltered(reportes);
-      return;
-    }
-
-    const desdeDate = desde ? new Date(desde) : null;
-    const hastaDate = hasta ? new Date(hasta + "T23:59:59") : null;
-
+  const filtrar = () => {
     const filtrados = reportes.filter((rep) => {
-      const fechaRep = new Date(rep.fecha_hora);
-      return (!desdeDate || fechaRep >= desdeDate) && (!hastaDate || fechaRep <= hastaDate);
+      const fecha = new Date(rep.fecha_hora);
+      const cumpleFecha =
+        (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
+
+      const cumpleCiudadano = ciudadano
+        ? rep.nombre === ciudadano.value
+        : true;
+
+      const cumpleTelefono = telefono
+        ? rep.telefono === telefono.value
+        : true;
+
+      return cumpleFecha && cumpleCiudadano && cumpleTelefono;
     });
 
     setFiltered(filtrados);
   };
 
   const limpiarFiltros = () => {
-    setDesde("");
-    setHasta("");
+    setDesde(null);
+    setHasta(null);
+    setCiudadano(null);
+    setTelefono(null);
     setFiltered(reportes);
   };
 
   const getEstadoColor = (estado) => {
     switch (estado) {
       case "Completado":
-        return "estado completado";
+        return "badge verde";
       case "Rechazado":
-        return "estado rechazado";
+        return "badge rojo";
       case "En proceso":
-        return "estado proceso";
       case "Esperando recepción":
-        return "estado esperando";
+        return "badge naranja";
       case "Sin revisar":
-        return "estado sinrevisar";
+        return "badge morado";
       default:
-        return "estado desconocido";
+        return "badge gris";
     }
   };
 
-  if (loading) return <p>Cargando reportes...</p>;
+  const opcionesCiudadanos = Array.from(
+    new Set(reportes.map((r) => r.nombre))
+  ).map((nombre) => ({ label: nombre, value: nombre }));
+
+  const opcionesTelefonos = Array.from(
+    new Set(reportes.map((r) => r.telefono))
+  ).map((tel) => ({ label: tel, value: tel }));
+
+  if (loading) return <p>Cargando...</p>;
 
   return (
     <div className="contenedor-reportes-filtrables">
       <h3>Reportes con Filtros</h3>
 
       <div className="filtros-reportes">
-        <label>
-          Desde:
-          <input type="date" value={desde} onChange={(e) => setDesde(e.target.value)} />
-        </label>
-        <label>
-          Hasta:
-          <input type="date" value={hasta} onChange={(e) => setHasta(e.target.value)} />
-        </label>
-        <button className="btn-limpiar-filtros" onClick={limpiarFiltros}>Limpiar</button>
+        <div>
+          <label>Desde:</label>
+          <DatePicker
+            selected={desde}
+            onChange={(date) => setDesde(date)}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Selecciona fecha"
+            className="input-date"
+          />
+        </div>
+
+        <div>
+          <label>Hasta:</label>
+          <DatePicker
+            selected={hasta}
+            onChange={(date) => setHasta(date)}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Selecciona fecha"
+            className="input-date"
+          />
+        </div>
+
+        <div>
+          <label>Ciudadano:</label>
+          <Select
+            options={opcionesCiudadanos}
+            value={ciudadano}
+            onChange={setCiudadano}
+            isClearable
+            placeholder="Buscar por nombre"
+          />
+        </div>
+
+        <div>
+          <label>Teléfono:</label>
+          <Select
+            options={opcionesTelefonos}
+            value={telefono}
+            onChange={setTelefono}
+            isClearable
+            placeholder="Buscar por número"
+          />
+        </div>
+
+        <div>
+          <button className="btn-limpiar-filtros" onClick={limpiarFiltros}>
+            Limpiar
+          </button>
+        </div>
       </div>
 
       <div className="tabla-wrapper-filtrables">
@@ -109,15 +164,15 @@ const ReportesFiltrables = () => {
           <tbody>
             {filtered.map((rep) => (
               <tr key={rep.id}>
-                <td>{rep.id}</td>
-                <td>{rep.nombre || "No registrado"}</td>
-                <td>{rep.telefono || "Sin teléfono"}</td>
+                <td>REP-{rep.id.toString().padStart(3, "0")}</td>
+                <td>{rep.nombre}</td>
+                <td>{rep.telefono}</td>
                 <td>{rep.tipo_reporte}</td>
                 <td>{rep.descripcion}</td>
                 <td>{rep.ubicacion}</td>
                 <td>
                   <span className={getEstadoColor(rep.estado)}>
-                    {rep.estado || "Sin estado"}
+                    {rep.estado}
                   </span>
                 </td>
                 <td>{new Date(rep.fecha_hora).toLocaleString("es-MX")}</td>

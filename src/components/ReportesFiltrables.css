@@ -1,54 +1,211 @@
+/* Contenedor general */
+.contenedor-reportes-filtrables {
+  padding: 30px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* Filtros responsive y organizados */
 .filtros-reportes {
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
   margin-bottom: 20px;
   align-items: flex-end;
-  padding: 15px;
+  padding: 20px;
   background: #f8f9fa;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  justify-content: space-between;
 }
 
+/* Etiquetas de los filtros */
 .filtros-reportes label {
   display: flex;
   flex-direction: column;
   font-weight: bold;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #333;
-  min-width: 160px;
+  flex: 1;
+  min-width: 150px;
 }
 
+/* Inputs tradicionales */
 .filtros-reportes input[type="date"],
+.filtros-reportes input[type="text"],
 .filtros-reportes select {
   padding: 8px 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
   background-color: white;
   font-size: 0.9rem;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: border 0.3s ease;
+  margin-top: 5px;
 }
 
-.filtros-reportes input[type="date"]:focus,
-.filtros-reportes select:focus {
-  outline: none;
-  border-color: #00cc99;
+/* Compatibilidad react-datepicker */
+.filtros-reportes .input-date {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: white;
+  font-size: 0.9rem;
+  margin-top: 5px;
 }
 
+/* Botón limpiar */
 .btn-limpiar-filtros {
   padding: 10px 16px;
   border: none;
-  background-color: #ff4d4d;
+  background-color: #00cc99;
   color: white;
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.3s ease;
   height: 40px;
+  align-self: flex-end;
 }
 
 .btn-limpiar-filtros:hover {
-  background-color: #cc0000;
+  background-color: #00aa77;
+}
+
+/* Tabla */
+.tabla-wrapper-filtrables {
+  overflow-x: auto;
+}
+
+.tabla-reportes-filtrables {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.tabla-reportes-filtrables thead {
+  background-color: #00664d;
+  color: white;
+}
+
+.tabla-reportes-filtrables th,
+.tabla-reportes-filtrables td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.tabla-reportes-filtrables tbody tr:nth-child(even) {
+  background-color: #e6fcf3;
+}
+
+/* Estilo de estados */
+.badge {
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  display: inline-block;
+  text-align: center;
+}
+
+.badge.verde {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.badge.rojo {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.badge.naranja {
+  background-color: #f39c12;
+  color: white;
+}
+
+.badge.morado {
+  background-color: #5b2cff;
+  color: white;
+}
+
+.badge.gris {
+  background-color: #bdc3c7;
+  color: black;
+}
+
+/* Soporte para react-select */
+.filtros-reportes .css-13cymwt-control {
+  border-radius: 6px;
+  border-color: #ccc;
+  min-height: 38px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+}
+
+.filtros-reportes .css-13cymwt-control:hover {
+  border-color: #00cc99;
+}
+
+.react-datepicker {
+  font-family: "Segoe UI", sans-serif;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+  background-color: #e9fdf5;
+}
+
+.react-datepicker__header {
+  background-color: #00cc99;
+  border-bottom: none;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  color: white;
+}
+
+.react-datepicker__current-month {
+  font-weight: bold;
+  font-size: 1rem;
+  color: white;
+}
+
+.react-datepicker__day {
+  color: #00664d;
+  font-weight: 500;
+}
+
+.react-datepicker__day:hover {
+  background-color: #c3f6e5;
+  border-radius: 50%;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #00cc99 !important;
+  color: white !important;
+  border-radius: 50%;
+}
+
+.react-datepicker__day--today {
+  border-bottom: 2px solid #00cc99;
+}
+
+.react-datepicker__triangle {
+  display: none; /* Opcional: oculta la flechita del calendario */
+}
+
+.react-datepicker__navigation {
+  top: 10px;
+  line-height: 1.2rem;
+}
+
+.react-datepicker__navigation--previous {
+  left: 10px;
+}
+
+.react-datepicker__navigation--next {
+  right: 10px;
 }

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import Navbar from "./Navbar";
 import SummaryCards from "./SummaryCards";
-import ReportesTable from "./ReportesTable";
+import ReportesTable from "./ReportesTable"; // ← Aún se importa por si lo usas en otra parte
 import MapaReportes from "./MapaReportes";
 import Sidebar from "./Sidebar";
 import HistorialMensajes from "./HistorialMensajes";
-import Usuarios from "./Usuarios"; // ✅ Agregado
+import Usuarios from "./Usuarios";
+import ReportesFiltrables from "./ReportesFiltrables"; // ✅ Nuevo componente filtrable
 
 const Menu = ({ usuario }) => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -39,13 +40,13 @@ const Menu = ({ usuario }) => {
       case "reportes":
         return (
           <div className="row mt-4">
-            <ReportesTable />
+            <ReportesFiltrables /> {/* ✅ Aquí ya usamos la tabla con filtros */}
           </div>
         );
       case "config":
         return (
           <div className="row mt-4">
-            <Usuarios /> {/* ✅ Componente mostrado aquí */}
+            <Usuarios />
           </div>
         );
       default:
