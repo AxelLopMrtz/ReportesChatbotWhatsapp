@@ -1,0 +1,54 @@
+.filtros-reportes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: flex-end;
+  padding: 15px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.filtros-reportes label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: #333;
+  min-width: 160px;
+}
+
+.filtros-reportes input[type="date"],
+.filtros-reportes select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: white;
+  font-size: 0.9rem;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  transition: border 0.3s ease;
+}
+
+.filtros-reportes input[type="date"]:focus,
+.filtros-reportes select:focus {
+  outline: none;
+  border-color: #00cc99;
+}
+
+.btn-limpiar-filtros {
+  padding: 10px 16px;
+  border: none;
+  background-color: #ff4d4d;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  height: 40px;
+}
+
+.btn-limpiar-filtros:hover {
+  background-color: #cc0000;
+}
