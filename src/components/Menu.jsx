@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import HistorialMensajes from "./HistorialMensajes";
 import Usuarios from "./Usuarios";
 import ReportesFiltrables from "./ReportesFiltrables"; // ✅ Nuevo componente filtrable
+import CiudadanosCards from "./CiudadanosCards";
 
 const Menu = ({ usuario }) => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -34,9 +35,10 @@ const Menu = ({ usuario }) => {
       case "ciudadanos":
         return (
           <div className="row mt-4">
-            <h2>Vista de Ciudadanos (en desarrollo)</h2>
+            <CiudadanosCards />
           </div>
         );
+
       case "reportes":
         return (
           <div className="row mt-4">

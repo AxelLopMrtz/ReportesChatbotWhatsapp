@@ -12,6 +12,7 @@ const ReportesFiltrables = () => {
   const [hasta, setHasta] = useState(null);
   const [ciudadano, setCiudadano] = useState(null);
   const [telefono, setTelefono] = useState(null);
+  const [estado, setEstado] = useState(null);
 
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL
@@ -35,25 +36,18 @@ const ReportesFiltrables = () => {
 
   useEffect(() => {
     filtrar();
-  }, [desde, hasta, ciudadano, telefono]);
+  }, [desde, hasta, ciudadano, telefono, estado]);
 
   const filtrar = () => {
     const filtrados = reportes.filter((rep) => {
       const fecha = new Date(rep.fecha_hora);
-      const cumpleFecha =
-        (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
+      const cumpleFecha = (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
+      const cumpleCiudadano = ciudadano ? rep.nombre === ciudadano.value : true;
+      const cumpleTelefono = telefono ? rep.telefono === telefono.value : true;
+      const cumpleEstado = estado ? normalizarEstado(rep.estado) === estado.value : true;
 
-      const cumpleCiudadano = ciudadano
-        ? rep.nombre === ciudadano.value
-        : true;
-
-      const cumpleTelefono = telefono
-        ? rep.telefono === telefono.value
-        : true;
-
-      return cumpleFecha && cumpleCiudadano && cumpleTelefono;
+      return cumpleFecha && cumpleCiudadano && cumpleTelefono && cumpleEstado;
     });
-
     setFiltered(filtrados);
   };
 
@@ -62,32 +56,51 @@ const ReportesFiltrables = () => {
     setHasta(null);
     setCiudadano(null);
     setTelefono(null);
+    setEstado(null);
     setFiltered(reportes);
   };
 
+  const normalizarEstado = (estado) => {
+    const est = estado.toLowerCase();
+    if (est.includes("sin revisar")) return "sin_revisar";
+    if (est.includes("esperando")) return "esperando";
+    if (est.includes("completado")) return "completado";
+    if (est.includes("rechazado")) return "rechazado";
+    return "otro";
+  };
+
   const getEstadoColor = (estado) => {
-    switch (estado) {
-      case "Completado":
+    const norm = normalizarEstado(estado);
+    switch (norm) {
+      case "completado":
         return "badge verde";
-      case "Rechazado":
+      case "rechazado":
         return "badge rojo";
-      case "En proceso":
-      case "Esperando recepción":
+      case "esperando":
         return "badge naranja";
-      case "Sin revisar":
+      case "sin_revisar":
         return "badge morado";
       default:
         return "badge gris";
     }
   };
 
-  const opcionesCiudadanos = Array.from(
-    new Set(reportes.map((r) => r.nombre))
-  ).map((nombre) => ({ label: nombre, value: nombre }));
+  const opcionesCiudadanos = Array.from(new Set(reportes.map((r) => r.nombre))).map((nombre) => ({
+    label: nombre,
+    value: nombre,
+  }));
 
-  const opcionesTelefonos = Array.from(
-    new Set(reportes.map((r) => r.telefono))
-  ).map((tel) => ({ label: tel, value: tel }));
+  const opcionesTelefonos = Array.from(new Set(reportes.map((r) => r.telefono))).map((tel) => ({
+    label: tel,
+    value: tel,
+  }));
+
+  const opcionesEstados = [
+    { label: "Sin revisar", value: "sin_revisar" },
+    { label: "Esperando recepción", value: "esperando" },
+    { label: "Completado", value: "completado" },
+    { label: "Rechazado", value: "rechazado" },
+  ];
 
   if (loading) return <p>Cargando...</p>;
 
@@ -96,58 +109,69 @@ const ReportesFiltrables = () => {
       <h3>Reportes con Filtros</h3>
 
     <div className="filtros-reportes">
-      <div className="campo-filtro">
-        <label>Ciudadano:</label>
-        <Select
-          className="react-select-container"
-          classNamePrefix="react-select"
-          options={opcionesCiudadanos}
-          value={ciudadano}
-          onChange={setCiudadano}
-          isClearable
-          placeholder="Buscar por nombre"
-        />
+      <div className="fila-filtros-superior">
+        <div className="campo-filtro">
+          <label>Ciudadano:</label>
+          <Select
+            options={opcionesCiudadanos}
+            value={ciudadano}
+            onChange={setCiudadano}
+            isClearable
+            placeholder="Buscar por nombre"
+          />
+        </div>
+
+        <div className="campo-filtro">
+          <label>Teléfono:</label>
+          <Select
+            options={opcionesTelefonos}
+            value={telefono}
+            onChange={setTelefono}
+            isClearable
+            placeholder="Buscar por número"
+          />
+        </div>
+
+        <div className="campo-filtro">
+          <label>Estado:</label>
+          <Select
+            options={opcionesEstados}
+            value={estado}
+            onChange={setEstado}
+            isClearable
+            placeholder="Filtrar por estado"
+          />
+        </div>
       </div>
 
-      <div className="campo-filtro">
-        <label>Teléfono:</label>
-        <Select
-          className="react-select-container"
-          classNamePrefix="react-select"
-          options={opcionesTelefonos}
-          value={telefono}
-          onChange={setTelefono}
-          isClearable
-          placeholder="Buscar por número"
-        />
-      </div>
+      <div className="fila-filtros-inferior">
+        <div className="campo-filtro">
+          <label>Desde:</label>
+          <DatePicker
+            selected={desde}
+            onChange={setDesde}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Selecciona fecha"
+            className="input-date"
+          />
+        </div>
 
-      <div className="campo-filtro">
-        <label>Desde:</label>
-        <DatePicker
-          selected={desde}
-          onChange={(date) => setDesde(date)}
-          dateFormat="dd/MM/yyyy"
-          placeholderText="Selecciona fecha"
-          className="input-date"
-        />
-      </div>
+        <div className="campo-filtro">
+          <label>Hasta:</label>
+          <DatePicker
+            selected={hasta}
+            onChange={setHasta}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Selecciona fecha"
+            className="input-date"
+          />
+        </div>
 
-      <div className="campo-filtro">
-        <label>Hasta:</label>
-        <DatePicker
-          selected={hasta}
-          onChange={(date) => setHasta(date)}
-          dateFormat="dd/MM/yyyy"
-          placeholderText="Selecciona fecha"
-          className="input-date"
-        />
-      </div>
-
-      <div className="campo-filtro">
-        <button className="btn-limpiar-filtros" onClick={limpiarFiltros}>
-          Limpiar
-        </button>
+        <div className="campo-filtro">
+          <button onClick={limpiarFiltros} className="btn-limpiar-filtros">
+            Limpiar
+          </button>
+        </div>
       </div>
     </div>
 
@@ -169,7 +193,7 @@ const ReportesFiltrables = () => {
           <tbody>
             {filtered.map((rep) => (
               <tr key={rep.id}>
-                <td>REP-{rep.id.toString().padStart(3, "0")}</td>
+                <td>REP-{String(rep.id).padStart(3, "0")}</td>
                 <td>{rep.nombre}</td>
                 <td>{rep.telefono}</td>
                 <td>{rep.tipo_reporte}</td>
@@ -177,7 +201,9 @@ const ReportesFiltrables = () => {
                 <td>{rep.ubicacion}</td>
                 <td>
                   <span className={getEstadoColor(rep.estado)}>
-                    {rep.estado}
+                    {opcionesEstados.find(
+                      (opt) => opt.value === normalizarEstado(rep.estado)
+                    )?.label || rep.estado}
                   </span>
                 </td>
                 <td>{new Date(rep.fecha_hora).toLocaleString("es-MX")}</td>

@@ -242,3 +242,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Reorganización visual: filtros en dos filas */
+.fila-filtros-superior,
+.fila-filtros-inferior {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.fila-filtros-inferior {
+  justify-content: flex-start;
+}
+

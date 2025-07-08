@@ -1,0 +1,48 @@
+.contenedor-ciudadanos {
+  padding: 30px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.tarjetas-ciudadanos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.card-ciudadano {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.card-ciudadano:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.card-ciudadano h4 {
+  margin: 0 0 10px;
+  color: #00664d;
+}
+
+.card-ciudadano p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.input-buscador-ciudadano {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 14px;
+  margin: 15px 0 25px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
