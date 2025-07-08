@@ -95,57 +95,62 @@ const ReportesFiltrables = () => {
     <div className="contenedor-reportes-filtrables">
       <h3>Reportes con Filtros</h3>
 
-      <div className="filtros-reportes">
-        <div>
-          <label>Desde:</label>
-          <DatePicker
-            selected={desde}
-            onChange={(date) => setDesde(date)}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Selecciona fecha"
-            className="input-date"
-          />
-        </div>
-
-        <div>
-          <label>Hasta:</label>
-          <DatePicker
-            selected={hasta}
-            onChange={(date) => setHasta(date)}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Selecciona fecha"
-            className="input-date"
-          />
-        </div>
-
-        <div>
-          <label>Ciudadano:</label>
-          <Select
-            options={opcionesCiudadanos}
-            value={ciudadano}
-            onChange={setCiudadano}
-            isClearable
-            placeholder="Buscar por nombre"
-          />
-        </div>
-
-        <div>
-          <label>Teléfono:</label>
-          <Select
-            options={opcionesTelefonos}
-            value={telefono}
-            onChange={setTelefono}
-            isClearable
-            placeholder="Buscar por número"
-          />
-        </div>
-
-        <div>
-          <button className="btn-limpiar-filtros" onClick={limpiarFiltros}>
-            Limpiar
-          </button>
-        </div>
+    <div className="filtros-reportes">
+      <div className="campo-filtro">
+        <label>Ciudadano:</label>
+        <Select
+          className="react-select-container"
+          classNamePrefix="react-select"
+          options={opcionesCiudadanos}
+          value={ciudadano}
+          onChange={setCiudadano}
+          isClearable
+          placeholder="Buscar por nombre"
+        />
       </div>
+
+      <div className="campo-filtro">
+        <label>Teléfono:</label>
+        <Select
+          className="react-select-container"
+          classNamePrefix="react-select"
+          options={opcionesTelefonos}
+          value={telefono}
+          onChange={setTelefono}
+          isClearable
+          placeholder="Buscar por número"
+        />
+      </div>
+
+      <div className="campo-filtro">
+        <label>Desde:</label>
+        <DatePicker
+          selected={desde}
+          onChange={(date) => setDesde(date)}
+          dateFormat="dd/MM/yyyy"
+          placeholderText="Selecciona fecha"
+          className="input-date"
+        />
+      </div>
+
+      <div className="campo-filtro">
+        <label>Hasta:</label>
+        <DatePicker
+          selected={hasta}
+          onChange={(date) => setHasta(date)}
+          dateFormat="dd/MM/yyyy"
+          placeholderText="Selecciona fecha"
+          className="input-date"
+        />
+      </div>
+
+      <div className="campo-filtro">
+        <button className="btn-limpiar-filtros" onClick={limpiarFiltros}>
+          Limpiar
+        </button>
+      </div>
+    </div>
+
 
       <div className="tabla-wrapper-filtrables">
         <table className="tabla-reportes-filtrables">
