@@ -1,17 +1,24 @@
 import React, { useState } from "react";
 import Navbar from "./Navbar";
 import SummaryCards from "./SummaryCards";
-import ReportesTable from "./ReportesTable"; // ← Aún se importa por si lo usas en otra parte
+import ReportesTable from "./ReportesTable";
 import MapaReportes from "./MapaReportes";
 import Sidebar from "./Sidebar";
 import HistorialMensajes from "./HistorialMensajes";
 import Usuarios from "./Usuarios";
-import ReportesFiltrables from "./ReportesFiltrables"; // ✅ Nuevo componente filtrable
+import ReportesFiltrables from "./ReportesFiltrables";
 import CiudadanosCards from "./CiudadanosCards";
 
 const Menu = ({ usuario }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [vista, setVista] = useState("inicio");
+
+  const [filtrosActivos, setFiltrosActivos] = useState([
+    "Sin revisar",
+    "Esperando recepción",
+    "Completado",
+    "Rechazado"
+  ]);
 
   const handleLogout = () => window.location.reload();
 
@@ -21,9 +28,18 @@ const Menu = ({ usuario }) => {
         return (
           <>
             <h2 className="mb-4">Bienvenido, {usuario.username}</h2>
-            <div className="row"><SummaryCards /></div>
-            <div className="row mt-4"><MapaReportes /></div>
-            <div className="row mt-4"><ReportesTable /></div>
+            <div className="row">
+              <SummaryCards
+                filtrosActivos={filtrosActivos}
+                setFiltrosActivos={setFiltrosActivos}
+              />
+            </div>
+            <div className="row mt-4">
+              <MapaReportes filtrosActivos={filtrosActivos} />
+            </div>
+            <div className="row mt-4">
+              <ReportesTable />
+            </div>
           </>
         );
       case "historial":
@@ -38,11 +54,10 @@ const Menu = ({ usuario }) => {
             <CiudadanosCards />
           </div>
         );
-
       case "reportes":
         return (
           <div className="row mt-4">
-            <ReportesFiltrables /> {/* ✅ Aquí ya usamos la tabla con filtros */}
+            <ReportesFiltrables />
           </div>
         );
       case "config":
@@ -72,9 +87,7 @@ const Menu = ({ usuario }) => {
           setMenuVisible(false);
         }}
       />
-      <div className="container mt-5">
-        {renderVista()}
-      </div>
+      <div className="container mt-5">{renderVista()}</div>
     </div>
   );
 };

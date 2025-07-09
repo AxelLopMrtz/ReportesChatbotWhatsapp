@@ -27,16 +27,12 @@ const ReportesTable = () => {
   }, []);
 
   const getEstadoColor = (estado) => {
-    switch (estado) {
-      case "Completado":
-        return "estado completado";
-      case "Rechazado":
-        return "estado rechazado";
-      case "En proceso":
-        return "estado proceso";
-      default:
-        return "estado desconocido";
-    }
+    const lower = estado?.toLowerCase() || "";
+    if (lower.includes("completado")) return "estado completado";
+    if (lower.includes("rechazado")) return "estado rechazado";
+    if (lower.includes("esperando")) return "estado esperando";
+    if (lower.includes("sin revisar")) return "estado sin-revisar";
+    return "estado desconocido";
   };
 
   if (loading) return <p>Cargando reportes...</p>;
@@ -60,7 +56,7 @@ const ReportesTable = () => {
         <tbody>
           {reportes.map((rep) => (
             <tr key={rep.id}>
-              <td>{rep.id}</td>
+              <td>{`REP-${String(rep.id).padStart(3, "0")}`}</td>
               <td>{rep.nombre || "No registrado"}</td>
               <td>{rep.telefono || "Sin teléfono"}</td>
               <td>{rep.tipo_reporte}</td>
