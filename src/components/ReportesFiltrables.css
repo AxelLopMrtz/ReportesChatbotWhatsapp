@@ -257,3 +257,31 @@
   justify-content: flex-start;
 }
 
+/* Estilo adicional para el input de folio si se requiere afinado */
+.input-text {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: white;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border 0.3s ease;
+}
+
+ .input-con-icono {
+  position: relative;
+}
+
+.icono-buscar {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.input-con-icono .input-text {
+  padding-left: 30px;
+}

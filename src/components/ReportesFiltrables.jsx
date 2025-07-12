@@ -13,6 +13,7 @@ const ReportesFiltrables = () => {
   const [ciudadano, setCiudadano] = useState(null);
   const [telefono, setTelefono] = useState(null);
   const [estado, setEstado] = useState(null);
+  const [folio, setFolio] = useState("");
 
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL
@@ -36,7 +37,7 @@ const ReportesFiltrables = () => {
 
   useEffect(() => {
     filtrar();
-  }, [desde, hasta, ciudadano, telefono, estado]);
+  }, [desde, hasta, ciudadano, telefono, estado, folio]);
 
   const filtrar = () => {
     const filtrados = reportes.filter((rep) => {
@@ -45,8 +46,9 @@ const ReportesFiltrables = () => {
       const cumpleCiudadano = ciudadano ? rep.nombre === ciudadano.value : true;
       const cumpleTelefono = telefono ? rep.telefono === telefono.value : true;
       const cumpleEstado = estado ? normalizarEstado(rep.estado) === estado.value : true;
+      const cumpleFolio = folio ? String(rep.id).includes(folio.replace(/^REP-/, "")) : true;
 
-      return cumpleFecha && cumpleCiudadano && cumpleTelefono && cumpleEstado;
+      return cumpleFecha && cumpleCiudadano && cumpleTelefono && cumpleEstado && cumpleFolio;
     });
     setFiltered(filtrados);
   };
@@ -57,6 +59,7 @@ const ReportesFiltrables = () => {
     setCiudadano(null);
     setTelefono(null);
     setEstado(null);
+    setFolio("");
     setFiltered(reportes);
   };
 
@@ -108,73 +111,83 @@ const ReportesFiltrables = () => {
     <div className="contenedor-reportes-filtrables">
       <h3>Reportes con Filtros</h3>
 
-    <div className="filtros-reportes">
-      <div className="fila-filtros-superior">
-        <div className="campo-filtro">
-          <label>Ciudadano:</label>
-          <Select
-            options={opcionesCiudadanos}
-            value={ciudadano}
-            onChange={setCiudadano}
-            isClearable
-            placeholder="Buscar por nombre"
-          />
+      <div className="filtros-reportes">
+        <div className="fila-filtros-superior">
+          <div className="campo-filtro">
+            <label>Ciudadano:</label>
+            <Select
+              options={opcionesCiudadanos}
+              value={ciudadano}
+              onChange={setCiudadano}
+              isClearable
+              placeholder="Buscar por nombre"
+            />
+          </div>
+
+          <div className="campo-filtro">
+            <label>Teléfono:</label>
+            <Select
+              options={opcionesTelefonos}
+              value={telefono}
+              onChange={setTelefono}
+              isClearable
+              placeholder="Buscar por número"
+            />
+          </div>
+
+          <div className="campo-filtro">
+            <label>Estado:</label>
+            <Select
+              options={opcionesEstados}
+              value={estado}
+              onChange={setEstado}
+              isClearable
+              placeholder="Filtrar por estado"
+            />
+          </div>
+
+          <div className="campo-filtro">
+            <label>Folio:</label>
+            <input
+              type="text"
+              value={folio}
+              onChange={(e) => setFolio(e.target.value)}
+              placeholder="Ej. REP-001 o 15"
+              className="input-text"
+            />
+          </div>
         </div>
 
-        <div className="campo-filtro">
-          <label>Teléfono:</label>
-          <Select
-            options={opcionesTelefonos}
-            value={telefono}
-            onChange={setTelefono}
-            isClearable
-            placeholder="Buscar por número"
-          />
-        </div>
+        <div className="fila-filtros-inferior">
+          <div className="campo-filtro">
+            <label>Desde:</label>
+            <DatePicker
+              selected={desde}
+              onChange={setDesde}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Selecciona fecha"
+              className="input-date"
+            />
+          </div>
 
-        <div className="campo-filtro">
-          <label>Estado:</label>
-          <Select
-            options={opcionesEstados}
-            value={estado}
-            onChange={setEstado}
-            isClearable
-            placeholder="Filtrar por estado"
-          />
+          <div className="campo-filtro">
+            <label>Hasta:</label>
+            <DatePicker
+              selected={hasta}
+              onChange={setHasta}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Selecciona fecha"
+              className="input-date"
+            />
+          </div>
+
+          <div className="campo-filtro">
+            <button onClick={limpiarFiltros} className="btn-limpiar-filtros">
+              Limpiar
+            </button>
+          </div>
         </div>
       </div>
-
-      <div className="fila-filtros-inferior">
-        <div className="campo-filtro">
-          <label>Desde:</label>
-          <DatePicker
-            selected={desde}
-            onChange={setDesde}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Selecciona fecha"
-            className="input-date"
-          />
-        </div>
-
-        <div className="campo-filtro">
-          <label>Hasta:</label>
-          <DatePicker
-            selected={hasta}
-            onChange={setHasta}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Selecciona fecha"
-            className="input-date"
-          />
-        </div>
-
-        <div className="campo-filtro">
-          <button onClick={limpiarFiltros} className="btn-limpiar-filtros">
-            Limpiar
-          </button>
-        </div>
-      </div>
-    </div>
-
 
       <div className="tabla-wrapper-filtrables">
         <table className="tabla-reportes-filtrables">

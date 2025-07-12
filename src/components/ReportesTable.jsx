@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./ReportesTable.css";
 
-const ReportesTable = () => {
+const ReportesTable = ({ onSeleccionar }) => {
   const [reportes, setReportes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +55,11 @@ const ReportesTable = () => {
         </thead>
         <tbody>
           {reportes.map((rep) => (
-            <tr key={rep.id}>
+            <tr
+              key={rep.id}
+              onClick={() => onSeleccionar && onSeleccionar(rep.id)}
+              style={{ cursor: "pointer" }}
+            >
               <td>{`REP-${String(rep.id).padStart(3, "0")}`}</td>
               <td>{rep.nombre || "No registrado"}</td>
               <td>{rep.telefono || "Sin teléfono"}</td>

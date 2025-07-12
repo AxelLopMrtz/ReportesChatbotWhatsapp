@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import axios from "axios";
-import "./MapaReportes.css"; // ✅ Tu CSS sexy
+import "./MapaReportes.css";
 
-// ✅ Iconos personalizados por color de estado (usando /public/pins/)
+// 🎨 Iconos por estado
 const iconColors = {
   Completado: new L.Icon({
     iconUrl: "/pins/marker-icon-2x-green.png",
@@ -44,7 +44,37 @@ const iconColors = {
   }),
 };
 
-const MapaReportes = ({ filtrosActivos }) => {
+// ✅ Hook para centrar y abrir popup del marcador seleccionado con scroll
+const IrAlMarcador = ({ reporte }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (reporte && map) {
+      map.flyTo([reporte.lat, reporte.lng], 15, { animate: true });
+
+      const marker = Object.values(map._layers).find(
+        (layer) =>
+          layer._latlng?.lat === reporte.lat &&
+          layer._latlng?.lng === reporte.lng
+      );
+
+      if (marker && marker.openPopup) {
+        marker.openPopup();
+
+        setTimeout(() => {
+          const popupElement = document.querySelector(`[data-id="popup-${reporte.id}"]`);
+          if (popupElement) {
+            popupElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 300); // ⏱️ Espera a que se abra el popup
+      }
+    }
+  }, [reporte, map]);
+
+  return null;
+};
+
+const MapaReportes = ({ filtrosActivos, marcadorSeleccionado }) => {
   const [reportes, setReportes] = useState([]);
   const [mapCenter, setMapCenter] = useState([19.3, -99.15]);
 
@@ -79,8 +109,10 @@ const MapaReportes = ({ filtrosActivos }) => {
       .catch((err) => console.error("❌ Error al cargar reportes:", err));
   }, []);
 
+  const reporteSeleccionado = reportes.find((r) => r.id === marcadorSeleccionado);
+
   return (
-    <div className="mapa-card">
+    <div className="mapa-card" id="mapa-reportes">
       <h4 className="titulo-mapa">Mapa de Reportes</h4>
       <MapContainer
         center={mapCenter}
@@ -93,26 +125,35 @@ const MapaReportes = ({ filtrosActivos }) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
         {reportes
           .filter((reporte) => filtrosActivos.includes(reporte.estado))
-          .map((reporte, i) => {
+          .map((reporte) => {
             const icon = iconColors[reporte.estado] || iconColors.default;
             return (
-              <Marker key={i} position={[reporte.lat, reporte.lng]} icon={icon}>
+              <Marker
+                key={reporte.id}
+                position={[reporte.lat, reporte.lng]}
+                icon={icon}
+              >
                 <Popup>
-                  <strong>{reporte.tipo_reporte || "Tipo no definido"}</strong>
-                  <br />
-                  {reporte.descripcion}
-                  <br />
-                  <strong>Ciudadano:</strong> {reporte.nombre}
-                  <br />
-                  <strong>Estado:</strong> {reporte.estado || "Sin estado"}
-                  <br />
-                  <em>{reporte.ubicacion}</em>
+                  <div data-id={`popup-${reporte.id}`}>
+                    <strong>{reporte.tipo_reporte || "Tipo no definido"}</strong>
+                    <br />
+                    {reporte.descripcion}
+                    <br />
+                    <strong>Ciudadano:</strong> {reporte.nombre}
+                    <br />
+                    <strong>Estado:</strong> {reporte.estado || "Sin estado"}
+                    <br />
+                    <em>{reporte.ubicacion}</em>
+                  </div>
                 </Popup>
               </Marker>
             );
           })}
+
+        {reporteSeleccionado && <IrAlMarcador reporte={reporteSeleccionado} />}
       </MapContainer>
     </div>
   );

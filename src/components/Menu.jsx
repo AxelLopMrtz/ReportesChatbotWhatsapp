@@ -20,6 +20,8 @@ const Menu = ({ usuario }) => {
     "Rechazado"
   ]);
 
+  const [marcadorSeleccionado, setMarcadorSeleccionado] = useState(null); // 🆕 NUEVO
+
   const handleLogout = () => window.location.reload();
 
   const renderVista = () => {
@@ -35,10 +37,15 @@ const Menu = ({ usuario }) => {
               />
             </div>
             <div className="row mt-4">
-              <MapaReportes filtrosActivos={filtrosActivos} />
+              <MapaReportes
+                filtrosActivos={filtrosActivos}
+                marcadorSeleccionado={marcadorSeleccionado} // 🆕
+              />
             </div>
             <div className="row mt-4">
-              <ReportesTable />
+              <ReportesTable
+                onSeleccionar={(id) => setMarcadorSeleccionado(id)} // 🆕
+              />
             </div>
           </>
         );
