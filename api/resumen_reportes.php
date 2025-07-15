@@ -19,7 +19,7 @@ $total = contar($mysqli, "SELECT COUNT(*) as count FROM Reporte");
 $sin_revisar = contar($mysqli, "SELECT COUNT(*) as count FROM EstadoReporte WHERE estado = 'Sin revisar'");
 $esperando = contar($mysqli, "SELECT COUNT(*) as count FROM EstadoReporte WHERE estado = 'Esperando recepción'");
 $completado = contar($mysqli, "SELECT COUNT(*) as count FROM EstadoReporte WHERE estado = 'Completado'");
-$rechazado = contar($mysqli, "SELECT COUNT(*) as count FROM EstadoReporte WHERE estado = 'Rechazado por departamento'");
+$rechazado = contar($mysqli, "SELECT COUNT(*) as count FROM EstadoReporte WHERE estado LIKE 'Rechazado%'");
 
 echo json_encode([
     "total" => $total,

@@ -36,7 +36,7 @@ $result = $mysqli->query($query);
 $data = [];
 
 while ($row = $result->fetch_assoc()) {
-    // Separar ubicación en lat/lng
+    // Procesar ubicación (lat, lng si aplica)
     if (!empty($row['ubicacion'])) {
         $coords = explode(',', $row['ubicacion']);
         $row['lat'] = floatval($coords[0]);
@@ -46,7 +46,7 @@ while ($row = $result->fetch_assoc()) {
         $row['lng'] = null;
     }
 
-    // Color del marcador por estado
+    // Color por estado (opcional si se usa)
     switch (strtolower($row['estado'])) {
         case 'completado':
             $row['color'] = 'green';
@@ -55,9 +55,9 @@ while ($row = $result->fetch_assoc()) {
             $row['color'] = 'red';
             break;
         case 'esperando':
-            $row['color'] = 'orange';
-            break;
         case 'sin revisar':
+            $row['color'] = 'grey';
+            break;
         default:
             $row['color'] = 'blue';
             break;
