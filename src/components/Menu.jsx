@@ -8,6 +8,7 @@ import HistorialMensajes from "./HistorialMensajes";
 import Usuarios from "./Usuarios";
 import ReportesFiltrables from "./ReportesFiltrables";
 import CiudadanosCards from "./CiudadanosCards";
+import N8nFlowViewer from './n8nFlowViewer';
 
 const Menu = ({ usuario }) => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -36,6 +37,10 @@ const Menu = ({ usuario }) => {
                 setFiltrosActivos={setFiltrosActivos}
               />
             </div>
+            <div className="row mt-5">
+              <h3 className="mb-3">Flujo n8n (visualización)</h3>
+              <N8nFlowViewer />
+            </div>
             <div className="row mt-4">
               <MapaReportes
                 filtrosActivos={filtrosActivos}
@@ -47,6 +52,7 @@ const Menu = ({ usuario }) => {
                 onSeleccionar={(id) => setMarcadorSeleccionado(id)} // 🆕
               />
             </div>
+
           </>
         );
       case "historial":

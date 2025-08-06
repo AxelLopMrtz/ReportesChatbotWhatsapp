@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 // Conexión
-$mysqli = new mysqli("localhost", "root", "", "whatsappbot");
+$mysqli = new mysqli("crossover.proxy.rlwy.net", "root", "TWLhLEUhjeLmtKQgkHkBKxfBYbXIkXLK", "railway", 32613);
 if ($mysqli->connect_error) {
     echo json_encode(["error" => $mysqli->connect_error]);
     exit;

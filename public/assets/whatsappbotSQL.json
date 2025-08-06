@@ -1,0 +1,2008 @@
+{
+    "name": "whatsappbotSQL",
+    "nodes": [
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "0d1163ca-e4e9-49f8-a48f-3e692db9eff3",
+                            "leftValue": "={{ $json.body.texto }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "exists",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                -4580,
+                960
+            ],
+            "id": "c5a82814-cd60-4415-8b44-1ff2572a6549",
+            "name": "If1",
+            "alwaysOutputData": true
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "9e665965-7071-4b1a-a056-f348d5fe9011",
+                            "name": "telefono",
+                            "value": "={{ $json.body.from }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "d61c64af-f638-4f3e-9e29-7050ea7f5b40",
+                            "name": "=nombre",
+                            "value": "={{ $json.body.nombre }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "b65570b4-119f-4356-99d4-6935781524bb",
+                            "name": "mensaje",
+                            "value": "={{ $json.body.texto }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "16833724-6f6b-4111-82e6-325398fa9545",
+                            "name": "fecha_hora",
+                            "value": "={{\n  (() => {\n    const fechaOriginal = $json.body.fechaHora;\n    \n    // Separar fecha y hora\n    const [fecha, horaCompleta] = fechaOriginal.split(\", \");\n    const [dia, mes, anio] = fecha.split(\"/\");\n\n    // Detectar si es \"p. m.\" y convertir a 24 hrs\n    let [hora, minutos, segundos] = horaCompleta\n      .replace(\"p. m.\", \"PM\")\n      .replace(\"a. m.\", \"AM\")\n      .trim()\n      .split(/[: ]/);\n\n    hora = parseInt(hora, 10);\n    if (horaCompleta.includes(\"PM\") && hora < 12) hora += 12;\n    if (horaCompleta.includes(\"AM\") && hora === 12) hora = 0;\n\n    const horaFormateada = String(hora).padStart(2, \"0\");\n    const fechaSQL = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')} ${horaFormateada}:${minutos}:${segundos}`;\n\n    return fechaSQL;\n  })()\n}}\n",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                -4240,
+                940
+            ],
+            "id": "a0d25faa-822b-41d2-a8e3-88028aa9ac23",
+            "name": "Edit Fields"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "6d1edb1b-c827-42ce-93de-3f208a19ddc3",
+                            "leftValue": "={{$json.id}}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "number",
+                                "operation": "notEmpty",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                -3600,
+                920
+            ],
+            "id": "24a9f479-5b31-46d6-ab99-40d86d879d41",
+            "name": "¿Existe el usuario?",
+            "alwaysOutputData": false
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "50344530-09e7-428e-a43c-12f4d7b89584",
+                                        "leftValue": "={{ $node[\"BUSCA EL USUARIO\"].json[\"estado\"] }}",
+                                        "rightValue": "Estado inicial",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "inicio"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "0b0adeaa-1092-456a-8408-10572e85b7c0",
+                                        "leftValue": "={{ $node[\"BUSCA EL USUARIO\"].json[\"estado\"] }}",
+                                        "rightValue": "seleccion",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "seleccion_1"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "981be901-83bb-413b-bc77-2a9950a2c577",
+                                        "leftValue": "={{ $node[\"BUSCA EL USUARIO\"].json[\"estado\"] }}",
+                                        "rightValue": "new",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "Crear reporte "
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "77aa80eb-f930-469c-a0df-545d1d68fe96",
+                                        "leftValue": "={{ $node[\"BUSCA EL USUARIO\"].json[\"estado\"] }}",
+                                        "rightValue": "descrip",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "descripticion"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "b27e08bb-de4b-4633-9f02-4bb093f93fc5",
+                                        "leftValue": "={{ $node[\"BUSCA EL USUARIO\"].json[\"estado\"] }}",
+                                        "rightValue": "ubi",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "Ubicacion"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "90ad649d-9652-4090-a5e5-b0418fd5d6df",
+                                        "leftValue": "={{ $node[\"BUSCA EL USUARIO\"].json[\"estado\"] }}",
+                                        "rightValue": "evid",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "evidencias"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "63a3f957-bd18-4f28-9db7-8005420b1fff",
+                                        "leftValue": "={{ $node[\"BUSCA EL USUARIO\"].json[\"estado\"] }}",
+                                        "rightValue": "Final",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "Reporte"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "5c221a08-bfb8-485d-bc81-2ccd1d9d6c90",
+                                        "leftValue": "={{ $node[\"BUSCA EL USUARIO\"].json[\"estado\"] }}",
+                                        "rightValue": "cons",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "Consultar reporte"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.2,
+            "position": [
+                -2720,
+                1040
+            ],
+            "id": "e8c2869d-9ad8-4b2f-8ba0-9d9a31afebe7",
+            "name": "Primer Switch"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "whatsapp",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                -4800,
+                960
+            ],
+            "id": "c8edad65-b689-4855-82b0-099c5490b571",
+            "name": "Webhook2",
+            "webhookId": "0676ef1e-7112-479a-aa4f-fc2319ab384e"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"Hola. Bienvenido al Chat Bot Tlalpan.\\n\\nSelecciona una opción: \\n1️⃣ Crear un reporte \\n2️⃣ Consultar reporte \\n3️⃣ Hablar con un asesor \\n\\n (Puedes responder con el número de la opción)\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -1280,
+                180
+            ],
+            "id": "29f6bdef-156f-4c27-bd77-dc0b70ea3b6e",
+            "name": "Respond to Webhook1"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"CRear nuevo reporte 1  2  3  4  5\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                0,
+                0
+            ],
+            "id": "95f1200d-6bad-4d6a-94ad-ef8675b52138",
+            "name": "Respond to Webhook2"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"Introducir el id del reporte completo sin espacios\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                20,
+                160
+            ],
+            "id": "2c9488c1-51b3-4885-a5f1-7fbbde2be48b",
+            "name": "Respond to Webhook3"
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "50344530-09e7-428e-a43c-12f4d7b89584",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "1",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "nuevo reporte"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "0b0adeaa-1092-456a-8408-10572e85b7c0",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "2",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "consultar reporte"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "5537782e-6824-46b2-8e79-9e149a0de0e8",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "exists",
+                                            "singleValue": true
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "again"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.2,
+            "position": [
+                -500,
+                220
+            ],
+            "id": "0831d5e3-64d8-45be-92ab-caf4a67f3633",
+            "name": "Primer Switch1"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"Hola. Bienvenido al Chat Bot Tlalpan.\\n\\nSelecciona una opción: \\n1️⃣ Crear un reporte \\n2️⃣ Consultar reporte \\n3️⃣ Hablar con un asesor \\n\\n (Puedes responder con el número de la opción)\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                40,
+                360
+            ],
+            "id": "ea6310bd-130f-4b6a-9969-63d98969cbc7",
+            "name": "Respond to Webhook4"
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "50344530-09e7-428e-a43c-12f4d7b89584",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "1",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "tipo 1"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "0b0adeaa-1092-456a-8408-10572e85b7c0",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "2",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "tipo 2"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "5537782e-6824-46b2-8e79-9e149a0de0e8",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "exists",
+                                            "singleValue": true
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "again"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.2,
+            "position": [
+                -720,
+                640
+            ],
+            "id": "8352d1b0-1d9c-484f-9eac-5fe85709931e",
+            "name": "Primer Switch2"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"Descripción\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                200,
+                540
+            ],
+            "id": "53a1bc67-469b-4ed1-b14a-dcefff9ba74e",
+            "name": "Respond to Webhook"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"CRear nuevo reporte 1  2  3  4  5\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -200,
+                940
+            ],
+            "id": "b56ea6e6-027a-4501-9c67-3446186fc463",
+            "name": "Respond to Webhook5"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"Compartanos la ubicación del problema\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -600,
+                920
+            ],
+            "id": "188d543c-f367-4bbe-bf97-5980da4d4a27",
+            "name": "Respond to Webhook6"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"Para que tu proceso vaya más rápido, ¿gusta agregar una evidencia?\\n1: sí\\n2: no\"\n}\n\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -520,
+                1160
+            ],
+            "id": "c08d2752-bc6e-4214-9b85-31d30b05bd53",
+            "name": "Respond to Webhook7"
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "1",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        },
+                                        "id": "4eae1e4a-5c3c-46cf-a1dc-91eb39ad00f6"
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "si"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "cc39646e-4610-4107-bd8c-b9e5190ebe72",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "2",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "no"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "0e39178a-4027-4091-b17c-76624a402cea",
+                                        "leftValue": "={{ $('Webhook2').item.json.body.imagen_url }}",
+                                        "rightValue": "",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "exists",
+                                            "singleValue": true
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "foto"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "20e25c53-7db1-4c6f-a3b3-31393e08f604",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "exists",
+                                            "singleValue": true
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "again"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.2,
+            "position": [
+                -1280,
+                1280
+            ],
+            "id": "59506c44-dfb4-4637-ba83-68a7f86c4790",
+            "name": "Switch"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"Porfavor agregue una fotografia del problema\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -80,
+                1320
+            ],
+            "id": "0f1cfddc-8707-44cf-84a0-bb9045b0b9a5",
+            "name": "Respond to Webhook8"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"Para que tu proceso vaya más rápido, ¿gusta agregar una evidencia?\\n1: sí\\n2: no\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -1060,
+                1460
+            ],
+            "id": "05e81a82-1dca-4e1b-a81a-7c2a8de67797",
+            "name": "Respond to Webhook9"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"text\": \"📋 *Resumen del reporte guardado:*\\n\\n🔹 *ID:* {{ $json.id }}\\n🔹 *Fecha y hora:* {{ $json.fecha_hora }}\\n🔹 *Tipo de reporte:* {{ $json.tipo_reporte }}\\n🔹 *Descripción:* {{ $json.descripcion }}\\n🔹 *Ubicación:* {{ $json.ubicacion }}\\n🔹 *¿Incluye evidencia?:* {{ $json.evidencia }}\\n🔹 *Imagen adjunta:* {{ $json.evidencia_recurso }}\\n\\n¿Desea modificar los datos? 1:No 2:No\"\n}\n\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                220,
+                1600
+            ],
+            "id": "4e699f52-19a9-4b89-8b1f-fe4c120e03eb",
+            "name": "Respond to Webhook10"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "SELECT * FROM ciudadano WHERE telefono = {{ $json.telefono }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -3900,
+                920
+            ],
+            "id": "5d762411-8484-4457-beea-045685ba585b",
+            "name": "BUSCA EL USUARIO",
+            "alwaysOutputData": true,
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "INSERT INTO `whatsappbot2`.`ciudadano` (telefono, nombre, estado, fecha_registro)\nVALUES (\n  '{{ $(\"Edit Fields\").item.json.telefono }}',\n  '{{ $(\"Edit Fields\").item.json.nombre }}',\n  'Estado inicial',\n  NOW()\n);\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -3200,
+                1180
+            ],
+            "id": "dd72135a-577c-4cd3-a124-edb6099a4cb1",
+            "name": "AGREGA EL USUARIO",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "INSERT INTO historialmensajesciudadanociudadano (ciudadano_id, mensaje, fecha_hora)\nVALUES (\n  {{ $(\"BUSCA EL USUARIO\").item.json.id }},\n  '{{ $(\"Edit Fields\").item.json.mensaje }}',\n  '{{ $(\"Edit Fields\").item.json.fecha_hora }}'\n);\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -2920,
+                1120
+            ],
+            "id": "2167fb86-f718-47d5-854f-e31f9569f2bf",
+            "name": "historialMensajes",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET estado = 'seleccion'\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -960,
+                180
+            ],
+            "id": "8cd2ce49-993c-4256-864a-fdaea5699d3b",
+            "name": "actualizacion_seleccion",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "INSERT INTO reporte (\n  id,\n  ciudadano_id,\n  fecha_hora\n)\nVALUES (\n  '{{ $node[\"Set ID Reporte\"].json[\"id_reporte\"] }}',\n  {{ $('¿Existe el usuario?').item.json.id }},\n  '{{ $('Edit Fields').item.json.fecha_hora }}'\n);\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                360,
+                -60
+            ],
+            "id": "fe33ee6c-16ee-4904-89e5-a732ceedbeeb",
+            "name": "NuevoReporte",
+            "alwaysOutputData": true,
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET \n  estado = 'new',\n  id_reporte = '{{ $node[\"Set ID Reporte\"].json[\"id_reporte\"] }}'\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                600,
+                -60
+            ],
+            "id": "09103f3c-39b7-43ee-9b05-8ac94c90cc79",
+            "name": "actualizacion_seleccion1",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET estado = 'cons'\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                520,
+                120
+            ],
+            "id": "559a0745-cae4-4d7f-adff-3011a8213835",
+            "name": "actualizacion_seleccion2",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET estado = 'descrip'\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                0,
+                540
+            ],
+            "id": "ec2fe507-7aed-4832-94c3-57a06bcc0f2c",
+            "name": "actualizacion_seleccion3",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "f28bf73c-5e2a-416c-a206-82a76047217c",
+                            "name": "id_reporte",
+                            "value": "=rep-{{ Date.now() }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                120,
+                -160
+            ],
+            "id": "b77b7319-2295-46b4-b89e-7bba6faecd59",
+            "name": "Set ID Reporte"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE reporte\nSET tipo_reporte = '1'\nWHERE id = '{{ $node[\"BUSCA EL USUARIO\"].json[\"id_reporte\"] }}';\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -200,
+                460
+            ],
+            "id": "c588dc85-3f64-4e96-9951-3df9592bde97",
+            "name": "Tipo_1",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "=UPDATE reporte\nSET tipo_reporte = '2'\nWHERE id = '{{ $node[\"BUSCA EL USUARIO\"].json[\"id_reporte\"] }}';\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -200,
+                640
+            ],
+            "id": "327c4af9-a30d-416c-a249-1e38794963b9",
+            "name": "Tipo_2",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET estado = 'ubi'\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -1160,
+                920
+            ],
+            "id": "19dc3668-848c-43dd-87ac-5458a9ddff41",
+            "name": "actualizacion_seleccion4",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET estado = 'evid'\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -1260,
+                1120
+            ],
+            "id": "790c91f4-9514-4008-8b5d-a96bea1dc9d7",
+            "name": "actualizacion_seleccion5",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET estado = 'Final'\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -300,
+                1460
+            ],
+            "id": "a2513114-1963-4c7a-ba07-3bb811c60027",
+            "name": "actualizacion_seleccion6",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE reporte\nSET \n  evidencia = 'si',\n  evidencia_recurso = '{{ $('Webhook2').item.json.body.imagen_url }}'\nWHERE id = '{{ $node[\"BUSCA EL USUARIO\"].json[\"id_reporte\"] }}';\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -900,
+                1600
+            ],
+            "id": "ae16ad47-af38-4c0e-9778-2ba7c8f0ea93",
+            "name": "fotografia",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE reporte\nSET \n  evidencia = 'no',\n  evidencia_recurso = NULL\nWHERE id = '{{ $node[\"BUSCA EL USUARIO\"].json[\"id_reporte\"] }}';\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -860,
+                1380
+            ],
+            "id": "01ec4fa9-cb17-40b1-848d-15e070ecaea1",
+            "name": "evidencia_no",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE reporte\nSET evidencia = 'si'\nWHERE id = '{{ $node[\"BUSCA EL USUARIO\"].json[\"id_reporte\"] }}';\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -720,
+                1280
+            ],
+            "id": "e5587338-6d41-4216-9dce-42786f3c0dec",
+            "name": "evidencia_si",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE reporte\nSET ubicacion = '{{ $('Edit Fields').item.json.mensaje }}'\nWHERE id = '{{ $node[\"BUSCA EL USUARIO\"].json[\"id_reporte\"] }}';\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -1460,
+                1100
+            ],
+            "id": "486c2fe3-0c4f-4c1f-97a3-ef57b5a223f8",
+            "name": "ubicación",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE reporte\nSET descripcion = '{{ $('Edit Fields').item.json.mensaje }}'\nWHERE id = '{{ $node[\"BUSCA EL USUARIO\"].json[\"id_reporte\"] }}';\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -1360,
+                900
+            ],
+            "id": "aea733b0-2945-43a3-87fd-4d729e22d5ef",
+            "name": "description",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "SELECT * FROM reporte WHERE id = '{{ $node[\"BUSCA EL USUARIO\"].json[\"id_reporte\"] }}';\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -40,
+                1580
+            ],
+            "id": "10834fd4-6981-466b-a83f-d85f08fdd3e0",
+            "name": "REPORTE",
+            "alwaysOutputData": true,
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "1",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        },
+                                        "id": "4eae1e4a-5c3c-46cf-a1dc-91eb39ad00f6"
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "si"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "cc39646e-4610-4107-bd8c-b9e5190ebe72",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "2",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "no"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "20e25c53-7db1-4c6f-a3b3-31393e08f604",
+                                        "leftValue": "={{ $('Edit Fields').item.json.mensaje }}",
+                                        "rightValue": "",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "exists",
+                                            "singleValue": true
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "again"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.2,
+            "position": [
+                -2060,
+                1400
+            ],
+            "id": "d2a9f13c-8cf6-4884-a433-f945798790cd",
+            "name": "Switch2"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "=¿Desea modificar alguno de estos datos? 1:Si 2:No\"",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -1760,
+                1680
+            ],
+            "id": "8efd069b-821d-48fa-b254-24c3e057536e",
+            "name": "Respond to Webhook11"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET estado = 'new'\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -1780,
+                1340
+            ],
+            "id": "c30436a8-b98d-4ff1-a02e-de98ca3924a1",
+            "name": "actualizacion_seleccion7",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "text",
+                "responseBody": "Perfecto,  guarde el id del reporte y puede darle seguimiento",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -1320,
+                1560
+            ],
+            "id": "c43de0bd-a6cb-4396-bbe4-c5a1de61176e",
+            "name": "Respond to Webhook12"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET \n  estado = 'Estado inicial',\n  id_reporte  = ''\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -1540,
+                1540
+            ],
+            "id": "40561ee7-0717-4efd-8a7f-adadda73de7a",
+            "name": "actualizacion_seleccion8",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "{\n  \"text\": \"CRear nuevo reporte 1  2  3  4  5\"\n}\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -1500,
+                1340
+            ],
+            "id": "1870f24f-4b00-4661-a38a-fef555645dab",
+            "name": "Respond to Webhook13"
+        },
+        {
+            "parameters": {
+                "respondWith": "text",
+                "responseBody": "=El estado actual de su reporte es: {{ $node[\"consulta\"].json[\"estado\"] }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                -2020,
+                1640
+            ],
+            "id": "0b71ee5a-f7d3-4f69-a7a5-042c07808ebb",
+            "name": "Respond to Webhook14"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "INSERT INTO estadoreporte (reporte_id, estado, fecha_estado)\nVALUES (\n  '{{ $node[\"BUSCA EL USUARIO\"].json[\"id_reporte\"] }}',\n  'espera',\n  NOW()\n);\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -1760,
+                1500
+            ],
+            "id": "17a0aa46-20e2-4636-b0fb-74360b381376",
+            "name": "actualizacion_estado",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "SELECT estado\nFROM estadoreporte\nWHERE reporte_id = '{{ $(\"Edit Fields\").item.json.mensaje }}'\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -2360,
+                1480
+            ],
+            "id": "d7d076e2-d9a6-4793-b9f3-8f59e0336b63",
+            "name": "consulta",
+            "alwaysOutputData": true,
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "UPDATE ciudadano\nSET \n  estado = 'Estado inicial'\nWHERE id = {{ $node[\"BUSCA EL USUARIO\"].json[\"id\"] }};\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                -2180,
+                1540
+            ],
+            "id": "e15d0844-d059-47ad-9c36-4fe1ec0c7368",
+            "name": "actualizacion_estado2",
+            "credentials": {
+                "mySql": {
+                    "id": "GHLO66H9dGalSFM7",
+                    "name": "MySQL account"
+                }
+            }
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "If1": {
+            "main": [
+                [
+                    {
+                        "node": "Edit Fields",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Edit Fields": {
+            "main": [
+                [
+                    {
+                        "node": "BUSCA EL USUARIO",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "¿Existe el usuario?": {
+            "main": [
+                [
+                    {
+                        "node": "historialMensajes",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "AGREGA EL USUARIO",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Primer Switch": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Primer Switch1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Primer Switch2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "description",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "ubicación",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Switch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Switch2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "consulta",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Webhook2": {
+            "main": [
+                [
+                    {
+                        "node": "If1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Respond to Webhook1": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Respond to Webhook2": {
+            "main": [
+                [
+                    {
+                        "node": "Set ID Reporte",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Respond to Webhook3": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Primer Switch1": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Respond to Webhook3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Respond to Webhook4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Primer Switch2": {
+            "main": [
+                [
+                    {
+                        "node": "Tipo_1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Tipo_2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Respond to Webhook5",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch": {
+            "main": [
+                [
+                    {
+                        "node": "evidencia_si",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "evidencia_no",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "fotografia",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Respond to Webhook9",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "BUSCA EL USUARIO": {
+            "main": [
+                [
+                    {
+                        "node": "¿Existe el usuario?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AGREGA EL USUARIO": {
+            "main": [
+                [
+                    {
+                        "node": "historialMensajes",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "historialMensajes": {
+            "main": [
+                [
+                    {
+                        "node": "Primer Switch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "NuevoReporte": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "actualizacion_seleccion3": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "actualizacion_seleccion1": {
+            "main": [
+                []
+            ]
+        },
+        "Set ID Reporte": {
+            "main": [
+                [
+                    {
+                        "node": "NuevoReporte",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Tipo_1": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Tipo_2": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "actualizacion_seleccion4": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook6",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "actualizacion_seleccion5": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook7",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "actualizacion_seleccion6": {
+            "main": [
+                [
+                    {
+                        "node": "REPORTE",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "fotografia": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion6",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "evidencia_no": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion6",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "evidencia_si": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook8",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "ubicación": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion5",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "description": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "REPORTE": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook10",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch2": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion7",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "actualizacion_estado",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Respond to Webhook11",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "actualizacion_seleccion8": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook12",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "actualizacion_seleccion7": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook13",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "actualizacion_estado": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_seleccion8",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "consulta": {
+            "main": [
+                [
+                    {
+                        "node": "actualizacion_estado2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "actualizacion_estado2": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook14",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "versionId": "051a0e62-ad4c-4878-b459-dc1428235bf8",
+    "meta": {
+        "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+    },
+    "id": "yknwcJMEIJY3pNbA",
+    "tags": []
+}

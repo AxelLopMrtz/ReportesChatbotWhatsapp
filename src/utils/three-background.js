@@ -76,7 +76,7 @@ export function initThreeBackground(containerId) {
 
 function animate() {
   requestAnimationFrame(animate);
-  group.rotation.y += 0.0015;
+  group.rotation.y += 0.0004;
   group.rotation.x += 0.0008;
   renderer.render(scene, camera);
 }

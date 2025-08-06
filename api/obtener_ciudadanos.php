@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *");
 
-$mysqli = new mysqli("localhost", "root", "", "whatsappbot");
+$mysqli = new mysqli("crossover.proxy.rlwy.net", "root", "TWLhLEUhjeLmtKQgkHkBKxfBYbXIkXLK", "railway", 32613);
 if ($mysqli->connect_error) {
     http_response_code(500);
     echo json_encode(["error" => "Conexión fallida: " . $mysqli->connect_error]);

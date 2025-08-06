@@ -22,11 +22,34 @@ function Login({ onLogin }) {
     };
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (username.trim() && password.trim()) {
-      onLogin({ username: username.trim(), password: password.trim() });
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/usuarios_api.php`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // ✅ Usuario válido → se pasa al componente padre
+          onLogin({
+            id: data.id,
+            username: data.username,
+            rol: data.rol
+          });
+        } else {
+          alert(data.error || "Credenciales inválidas");
+        }
+      } catch (error) {
+        alert("Error al conectar con el servidor");
+        console.error(error);
+      }
     }
   };
+
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleLogin();

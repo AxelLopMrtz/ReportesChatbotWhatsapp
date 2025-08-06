@@ -4,8 +4,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 
 // Conexión a la base de datos
-$mysqli = new mysqli("localhost", "root", "", "whatsappbot");
-
+$mysqli = new mysqli("crossover.proxy.rlwy.net", "root", "TWLhLEUhjeLmtKQgkHkBKxfBYbXIkXLK", "railway", 32613);
 if ($mysqli->connect_error) {
     echo json_encode(["error" => $mysqli->connect_error]);
     exit;
@@ -22,8 +21,8 @@ if (!isset($data["id"]) || !isset($data["nuevo_estado"])) {
 $id = intval($data["id"]);
 $nuevo_estado = $mysqli->real_escape_string($data["nuevo_estado"]);
 
-// Insertar nuevo estado en la tabla EstadoReporte
-$stmt = $mysqli->prepare("INSERT INTO EstadoReporte (reporte_id, estado, fecha_estado) VALUES (?, ?, NOW())");
+// Insertar nuevo estado en la tabla estadoreporte
+$stmt = $mysqli->prepare("INSERT INTO estadoreporte (reporte_id, estado, fecha_estado) VALUES (?, ?, NOW())");
 $stmt->bind_param("is", $id, $nuevo_estado);
 
 if ($stmt->execute()) {
