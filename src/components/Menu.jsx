@@ -10,7 +10,7 @@ import ReportesFiltrables from "./ReportesFiltrables";
 import CiudadanosCards from "./CiudadanosCards";
 import N8nFlowViewer from './n8nFlowViewer';
 
-const Menu = ({ usuario }) => {
+const Menu = ({ usuario, onLogout }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [vista, setVista] = useState("inicio");
 
@@ -23,7 +23,10 @@ const Menu = ({ usuario }) => {
 
   const [marcadorSeleccionado, setMarcadorSeleccionado] = useState(null); // 🆕 NUEVO
 
-  const handleLogout = () => window.location.reload();
+  const handleLogout = () => {
+    onLogout(); // ✅ elimina localStorage y resetea usuario en App.js
+  };
+
 
   const renderVista = () => {
     switch (vista) {
