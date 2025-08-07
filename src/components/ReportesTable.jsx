@@ -8,7 +8,7 @@ const ReportesTable = ({ onSeleccionar }) => {
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL
       ? `${process.env.REACT_APP_API_URL}/obtener_reportes.php`
-      : "http://localhost/api/obtener_reportes.php";
+      : "http://localhost/chatbotwhatsapp/api/obtener_reportes.php";
 
     fetch(API_URL)
       .then((res) => res.json())
@@ -49,35 +49,46 @@ const ReportesTable = ({ onSeleccionar }) => {
             <th>Tipo</th>
             <th>Descripción</th>
             <th>Ubicación</th>
+            <th>Evidencia</th>
             <th>Estado</th>
             <th>Fecha</th>
           </tr>
         </thead>
         <tbody>
-          {reportes.map((rep) => (
-            <tr
-              key={rep.id}
-              onClick={() => onSeleccionar && onSeleccionar(rep.id)}
-              style={{ cursor: "pointer" }}
-            >
-              <td>{`REP-${String(rep.id).padStart(3, "0")}`}</td>
-              <td>{rep.nombre || "No registrado"}</td>
-              <td>{rep.telefono || "Sin teléfono"}</td>
-              <td>{rep.tipo_reporte}</td>
-              <td>{rep.descripcion}</td>
-              <td>{rep.ubicacion}</td>
-              <td>
-                <span className={getEstadoColor(rep.estado)}>
-                  {rep.estado || "Sin estado"}
-                </span>
-              </td>
-              <td>{new Date(rep.fecha_hora).toLocaleString("es-MX")}</td>
-            </tr>
-          ))}
-        </tbody>
+  {reportes.map((rep) => (
+    <tr
+      key={rep.id}
+      onClick={() => onSeleccionar && onSeleccionar(rep.id)}
+      style={{ cursor: "pointer" }}
+    >
+      <td>{`REP-${String(rep.id).padStart(3, "0")}`}</td>
+      <td>{rep.nombre || "No registrado"}</td>
+      <td>{rep.telefono || "Sin teléfono"}</td>
+      <td>{rep.tipo_reporte}</td>
+      <td>{rep.descripcion}</td>
+      <td>{rep.ubicacion}</td>
+      <td>
+        {rep.evidencia ? (
+          <a href={rep.evidencia} target="_blank" rel="noopener noreferrer">
+            Ver archivo
+          </a>
+        ) : (
+          "Sin archivo"
+        )}
+      </td>
+      <td>
+        <span className={getEstadoColor(rep.estado)}>
+          {rep.estado || "Sin estado"}
+        </span>
+      </td>
+      <td>{new Date(rep.fecha_hora).toLocaleString("es-MX")}</td>
+    </tr>
+  ))}
+</tbody>
+
       </table>
     </div>
   );
 };
 
-export default ReportesTable;
+export default ReportesTable; 
