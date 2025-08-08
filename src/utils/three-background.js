@@ -1,82 +1,101 @@
-const THREE = window.THREE;
+import React, { useEffect, useRef } from 'react';
 
-let scene, camera, renderer, group;
+export default function ThreeBackground() {
+  const canvasRef = useRef(null);
 
-export function initThreeBackground(containerId) {
-  const container = document.getElementById(containerId);
-  const WIDTH = window.innerWidth;
-  const HEIGHT = window.innerHeight;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 0.1, 1000);
-  camera.position.z = 40;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  renderer.setSize(WIDTH, HEIGHT);
-  renderer.setClearColor(0x000000, 1);
-  container.appendChild(renderer.domElement);
+    let animationFrameId;
 
-  group = new THREE.Group();
-  scene.add(group);
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
 
-  const nodeCount = 70;
-  const sphereGeometry = new THREE.SphereGeometry(0.6, 16, 16);
-  const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-  const nodePositions = [];
+    const particles = [];
+    const numParticles = 80; // Más partículas para un aspecto más denso
+    const maxDistance = 200; // Distancia máxima para dibujar líneas
 
-  for (let i = 0; i < nodeCount; i++) {
-    const x = (Math.random() - 0.5) * 30;
-    const y = (Math.random() - 0.5) * 30;
-    const z = (Math.random() - 0.5) * 30;
-
-    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    sphere.position.set(x, y, z);
-    group.add(sphere);
-    nodePositions.push(new THREE.Vector3(x, y, z));
-  }
-
-  const lineMaterial = new THREE.LineBasicMaterial({
-    color: 0x66ffcc,
-    transparent: true,
-    opacity: 0.2,
-  });
-
-  for (let i = 0; i < nodeCount; i++) {
-    for (let j = i + 1; j < nodeCount; j++) {
-      const dist = nodePositions[i].distanceTo(nodePositions[j]);
-      if (dist < 12) {
-        const geometry = new THREE.BufferGeometry().setFromPoints([
-          nodePositions[i],
-          nodePositions[j],
-        ]);
-        const line = new THREE.Line(geometry, lineMaterial);
-        group.add(line);
-      }
+    // Crear partículas
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.8, // Movimiento ligeramente más rápido
+        vy: (Math.random() - 0.5) * 0.8,
+        size: Math.random() * 80 + 30, // Tamaños más grandes y variados para el efecto borroso
+        opacity: Math.random() * 0.2 + 0.05, // Opacidad base más baja
+        color: `rgba(0, 255, 204, ${Math.random() * 0.2 + 0.05})` // Color cyan
+      });
     }
-  }
 
-  // 🔥 Primero escalar el grupo
-  group.scale.set(5, 5, 5); // Aumenta aquí según lo que necesites
+    const animate = () => {
+      // Limpiar el canvas con un ligero efecto de desvanecimiento para el rastro
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; // Fondo oscuro con opacidad para el rastro
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // ✅ Luego centrar el grupo escalado
-  const box = new THREE.Box3().setFromObject(group);
-  const center = new THREE.Vector3();
-  box.getCenter(center);
-  group.position.sub(center);
+      particles.forEach(particle => {
+        // Actualizar posición
+        particle.x += particle.vx;
+        particle.y += particle.vy;
 
-  animate();
+        // Rebotar en los bordes
+        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
 
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-}
+        // Dibujar partícula (círculo borroso)
+        const gradient = ctx.createRadialGradient(
+          particle.x, particle.y, 0,
+          particle.x, particle.y, particle.size
+        );
+        gradient.addColorStop(0, particle.color);
+        gradient.addColorStop(1, 'rgba(0, 255, 204, 0)'); // Se desvanece a transparente
 
-function animate() {
-  requestAnimationFrame(animate);
-  group.rotation.y += 0.0004;
-  group.rotation.x += 0.0008;
-  renderer.render(scene, camera);
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Dibujar conexiones (líneas sutiles)
+      ctx.strokeStyle = 'rgba(0, 255, 204, 0.05)'; // Líneas cyan muy sutiles
+      ctx.lineWidth = 1;
+      particles.forEach((p1, i) => {
+        particles.slice(i + 1).forEach(p2 => {
+          const distance = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+          if (distance < maxDistance) {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        });
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="three-background" // Mantenemos la clase para que tu CSS existente la use
+      style={{ background: 'linear-gradient(135deg, #000000 0%, #0a2f2a 100%)' }} // Fondo degradado oscuro
+    />
+  );
 }
