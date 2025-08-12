@@ -53,6 +53,7 @@ const Menu = ({ usuario, onLogout }) => {
             <div className="row mt-4">
               <ReportesTable
                 onSeleccionar={(id) => setMarcadorSeleccionado(id)} // 🆕
+                filtroEstados={filtrosActivos}
               />
             </div>
 

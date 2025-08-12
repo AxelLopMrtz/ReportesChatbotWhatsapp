@@ -1,14 +1,18 @@
 :root {
-  --azul-claro: #d2faff;
-  --celeste: #9fd3e7;
-  --azul: #688db3;
+  --azul-claro: #e3f8ff;
+  --celeste: #b3e5fc;
+  --azul: #4a90e2;
   --verde-suave: #60ab7a;
   --verde-fuerte: #066f4d;
   --blanco: #ffffff;
-  --gris-claro: #066f4d;
-  --sombra: 0 10px 20px rgba(0, 0, 0, 0.08);
-  --sombra-hover: 0 14px 24px rgba(0, 0, 0, 0.15);
+  --gris-claro: #f1f5f9;
+  --sombra: 0 6px 16px rgba(0, 0, 0, 0.08);
+  --sombra-hover: 0 12px 24px rgba(0, 0, 0, 0.15);
   --borde-radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -17,20 +21,23 @@ body {
   background-color: var(--gris-claro);
   color: var(--verde-fuerte);
   overflow-x: hidden;
+  line-height: 1.6;
 }
 
 /* ----------------------- ENCABEZADOS ----------------------- */
-h1, h2 {
+h1,
+h2 {
   text-align: center;
   color: var(--verde-fuerte);
   margin-top: 2rem;
-  font-weight: bold;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 /* ----------------------- CONTENEDORES ----------------------- */
 .container {
-  max-width: 1200px;
-  margin: auto;
+  max-width: 1300px;
+  margin: 2rem auto;
   background-color: var(--blanco);
   padding: 2rem;
   border-radius: var(--borde-radius);
@@ -42,19 +49,23 @@ h1, h2 {
 /* ----------------------- FORMULARIOS ----------------------- */
 input[type="text"],
 input[type="password"],
-input[type="file"] {
+input[type="file"],
+textarea,
+select {
   width: 100%;
-  padding: 0.75rem;
-  margin: 0.5rem 0 1rem;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0 1.25rem;
   border: 2px solid var(--verde-fuerte);
   border-radius: var(--borde-radius);
   background-color: var(--blanco);
   color: var(--verde-fuerte);
   font-size: 1rem;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.25s ease;
 }
 
-input:focus {
+input:focus,
+textarea:focus,
+select:focus {
   outline: none;
   border-color: var(--azul);
   box-shadow: 0 0 6px var(--azul);
@@ -65,18 +76,18 @@ button {
   color: var(--blanco);
   border: none;
   padding: 0.75rem 1.5rem;
-  font-weight: bold;
+  font-weight: 600;
   border-radius: var(--borde-radius);
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s ease;
-  display: block;
-  margin: auto;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: inline-block;
 }
 
 button:hover {
   background-color: var(--verde-suave);
-  color: var(--azul);
+  transform: scale(1.03);
+  color: #b3e5fc;
 }
 
 /* ----------------------- TABLAS ----------------------- */
@@ -84,7 +95,6 @@ table {
   width: 100%;
   margin: 2rem auto;
   border-collapse: collapse;
-  background-color: var(--blanco);
   border-radius: var(--borde-radius);
   overflow: hidden;
   box-shadow: var(--sombra);
@@ -94,14 +104,17 @@ th {
   background-color: var(--verde-fuerte);
   color: var(--blanco);
   text-align: left;
-  padding: 0.75rem;
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 td {
-  padding: 0.75rem;
+  padding: 0.9rem 1rem;
   border-top: 1px solid #ccc;
-  color: var(--verde-fuerte);
+  color: #1e293b;
   background-color: var(--azul-claro);
+  font-size: 0.95rem;
 }
 
 /* ----------------------- TARJETAS ----------------------- */
@@ -110,6 +123,10 @@ td {
   box-shadow: var(--sombra);
   transition: all 0.2s ease;
   cursor: pointer;
+  padding: 1.25rem;
+  background-color: var(--verde-fuerte);
+  color: white;
+  text-align: center;
 }
 
 .card:hover {
@@ -118,21 +135,20 @@ td {
 }
 
 .card-body h4 {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 0.2rem;
-  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
 }
 
 .card-body p {
   font-size: 0.95rem;
-  color: white;
   margin: 0;
+  opacity: 0.95;
 }
 
 /* ----------------------- MAPA LEAFLET ----------------------- */
 .leaflet-container {
-  border-radius: 15px;
+  border-radius: 12px;
   box-shadow: var(--sombra);
   height: 400px !important;
   width: 100% !important;
@@ -143,9 +159,20 @@ td {
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
+    margin: 1rem;
   }
 
-  table, thead, tbody, th, td, tr {
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
     font-size: 0.9rem;
+  }
+
+  h1,
+  h2 {
+    font-size: 1.5rem;
   }
 }

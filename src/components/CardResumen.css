@@ -1,19 +1,29 @@
-/* Contenedor horizontal con scroll */
+/* ===== Summary horizontal con centrado y snap ===== */
 .summary-container {
+  --maxw: 2000px;
+  /* alínea con tu navbar-inner */
+  --gap: 20px;
+
   display: flex;
   flex-wrap: nowrap;
+  justify-content: center;
+  /* centra si caben; si no, empieza a la izq y scroll */
+  gap: var(--gap);
+  padding: 20px 12px;
+  margin: 0 auto;
+  max-width: var(--maxw);
+
   overflow-x: auto;
-  gap: 20px;
-  padding: 20px 10px;
   scroll-snap-type: x mandatory;
-  scroll-padding: 20px;
+  scroll-padding: 16px;
 }
 
 .summary-container::-webkit-scrollbar {
   height: 8px;
 }
+
 .summary-container::-webkit-scrollbar-thumb {
-  background-color: #ccc;
+  background-color: #c7d2d9;
   border-radius: 4px;
 }
 
@@ -25,80 +35,205 @@
   }
 }
 
-/* Tarjeta general */
+/* ===== Tarjeta base ===== */
 .card-resumen {
-  padding: 20px;
-  text-align: center;
-  border-radius: 16px;
-  flex: 1 0 160px;
-  max-width: 200px;
-  min-width: 140px;
-  cursor: pointer;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, opacity 0.2s ease;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  letter-spacing: 0.5px;
+  --w-min: 160px;
+  --w-max: 220px;
+  --radius: 16px;
+
+  flex: 1 0 var(--w-min);
+  min-width: var(--w-min);
+  max-width: var(--w-max);
+
+  padding: 18px 16px;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .12);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  color: #fff;
+  text-align: center;
+  letter-spacing: .4px;
+  user-select: none;
+  cursor: pointer;
+
   scroll-snap-align: start;
+  transition: transform .12s ease, box-shadow .2s ease, filter .2s ease, opacity .2s ease;
+  will-change: transform;
+
+  /* números tabulares = menos “salto” */
+  font-feature-settings: "tnum" 1;
 }
 
-/* Colores refinados */
-.card-resumen.verde {
-  background-color: #27ae60; /* más elegante que #2ecc71 */
-  color: #fff;
+.card-resumen:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, .18);
 }
 
-.card-resumen.rojo {
-  background-color: #c0392b; /* más sobrio que #e74c3c */
-  color: #fff;
+.card-resumen:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, .55);
+  outline-offset: 3px;
+}
+
+/* Estado desactivado (cuando el filtro NO está activo) */
+.card-resumen.desactivado {
+  opacity: .55;
+  filter: grayscale(.2) saturate(.75);
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, .08);
+}
+
+/* Tipografía interna (úsa estas clases en el JSX) */
+.card-count {
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+  line-height: 1;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.card-label {
+  font-size: .92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  opacity: .95;
+}
+
+/* ===== Colores por tipo (gradientes pulidos) ===== */
+.card-resumen.azul {
+  background: linear-gradient(135deg, #2f5e93, #2d4a72);
 }
 
 .card-resumen.naranja {
-  background-color: #d35400; /* menos chillón que #f39c12 */
-  color: #fff;
+  background: linear-gradient(135deg, #d87322, #b35413);
 }
 
-.card-resumen.azul {
-  background-color: #2980b9; /* más elegante que #3498db */
-  color: #fff;
+.card-resumen.verde {
+  background: linear-gradient(135deg, #24966f, #1e6a4d);
 }
 
+.card-resumen.rojo {
+  background: linear-gradient(135deg, #c83a42, #8b1e24);
+}
+
+/* Tarjeta principal (Total) — no es interactiva */
 .card-resumen.principal {
-  background-color: #2c3e50;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: bold;
-  border: 2px solid #2d60ff;
+  background: linear-gradient(135deg, #243b55, #2c3e50);
+  border: 2px solid rgba(45, 96, 255, .5);
+  cursor: default;
 }
 
-/* Estado desactivado */
-.card-resumen.desactivado {
-  opacity: 0.4;
-  filter: grayscale(100%);
-  cursor: not-allowed;
+.card-resumen.principal:hover {
+  transform: none;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .12);
 }
 
-/* Hover efecto */
-.card-resumen:hover {
-  transform: scale(1.03);
+/* ===== Responsivo fino ===== */
+
+/* 1) Mobile first: más compacto y scroll suave */
+.summary-container {
+  -webkit-overflow-scrolling: touch;
+  /* iOS momentum */
+  scrollbar-width: thin;
+  /* Firefox */
 }
 
-/* Contador grande */
-.card-resumen .card-count {
-  font-size: 2.6rem;
-  font-weight: 900;
-  margin-bottom: 0.3rem;
-  line-height: 1;
+@media (max-width: 600px) {
+  .summary-container {
+    gap: 12px;
+    padding: 14px 10px;
+  }
+
+  .card-resumen {
+    --w-min: 140px;
+    --w-max: 160px;
+    border-radius: 14px;
+    padding: 14px 12px;
+  }
+
+  .card-count {
+    font-size: clamp(1.6rem, 7vw, 2.1rem);
+  }
+
+  .card-label {
+    font-size: .82rem;
+    letter-spacing: .4px;
+  }
 }
 
-/* Etiqueta tipo categoría */
-.card-resumen .card-label {
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  opacity: 0.95;
+/* 2) Tablets chicas */
+@media (min-width: 601px) and (max-width: 900px) {
+  .summary-container {
+    gap: 16px;
+  }
+
+  .card-resumen {
+    --w-min: 160px;
+    --w-max: 190px;
+  }
+
+  .card-count {
+    font-size: clamp(1.8rem, 4.2vw, 2.4rem);
+  }
+}
+
+/* 3) Tablets/desktop medianos */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .summary-container {
+    gap: 18px;
+  }
+
+  .card-resumen {
+    --w-min: 180px;
+    --w-max: 210px;
+  }
+}
+
+/* 4) Desktop grande: centra y limita altura para que no “pesen” */
+@media (min-width: 1201px) {
+  .summary-container {
+    justify-content: center;
+  }
+
+  .card-resumen {
+    min-height: 120px;
+  }
+}
+
+/* 5) Usuarios con reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+
+  .card-resumen,
+  .card-resumen:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* --- Fix: primera tarjeta cortada --- */
+.summary-container {
+  justify-content: flex-start;
+  /* evita que se centre y se “coma” la primera */
+  padding-inline: 16px;
+  /* colchón visible a ambos lados */
+  scroll-padding-inline: 16px;
+  /* para el snap */
+}
+
+/* Garantiza que el primer ítem no quede pegado al borde curvo del parent */
+.card-resumen:first-child {
+  scroll-margin-left: 16px;
+  /* cuando haces snap */
+  margin-left: 2px;
+  /* en la carga inicial */
+}
+
+/* Opcional: en desktop grande, centra solo si cabe todo */
+@media (min-width: 1200px) {
+  .summary-container {
+    justify-content: center;
+  }
 }
