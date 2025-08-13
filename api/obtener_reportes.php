@@ -13,7 +13,7 @@ SELECT
     r.id,
     r.tipo_reporte,
     r.descripcion,
-    r.evidencia,
+    r.evidencia_recurso,
     r.ubicacion,
     r.fecha_hora,
     c.nombre,

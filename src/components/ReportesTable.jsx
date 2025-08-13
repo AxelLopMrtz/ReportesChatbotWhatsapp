@@ -6,7 +6,7 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(() => new Set()); // filas con descripción expandida
 
-  // ========= Helpers seguros =========
+  // ========= Helpers seguros / normalización =========
   const safeStr = (v) => String(v ?? ""); // convierte null/undefined en ""
 
   const normalizar = (s) =>
@@ -29,6 +29,38 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
     if (e.includes("esperando")) return "estado esperando";
     if (e.includes("sin revisar")) return "estado sin-revisar";
     return "estado desconocido";
+  };
+
+  // ========= Resolver URL de evidencia =========
+  // Puedes cambiar esta base cuando muevas a servidor.
+  // Si defines REACT_APP_EVIDENCIAS_BASE en el futuro, se usará automáticamente.
+  const EVID_BASE =
+    process.env.REACT_APP_EVIDENCIAS_BASE ||
+    "http://localhost/chatbotWwebhookdefinitivo/evidencias";
+
+  const resolverEvidenciaUrl = (raw) => {
+    if (!raw) return null;
+    const s = safeStr(raw).trim();
+
+    // si ya es a la base final, respeta
+    if (s.startsWith(EVID_BASE)) return s;
+
+    // si NO es URL absoluta (ej. "imagen_123.jpg"), compón directo
+    if (!/^https?:\/\//i.test(s)) {
+      const nombre = s.split("/").pop();
+      return `${EVID_BASE}/${nombre}`;
+    }
+
+    // si es URL absoluta (ej. http://192.168.x.x:3001/imagen_123.jpg)
+    try {
+      const u = new URL(s);
+      const nombre = u.pathname.split("/").pop(); // "imagen_123.jpg"
+      return `${EVID_BASE}/${nombre}`;
+    } catch {
+      // fallback bruto
+      const nombre = s.split("/").pop();
+      return `${EVID_BASE}/${nombre}`;
+    }
   };
 
   // ========= Data fetch =========
@@ -62,7 +94,9 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
 
     if (activos.size === 0) return reportes;
 
-    return reportes.filter((rep) => activos.has(normalizarEstadoParaMatch(rep?.estado)));
+    return reportes.filter((rep) =>
+      activos.has(normalizarEstadoParaMatch(rep?.estado))
+    );
   }, [reportes, filtroEstados]);
 
   // ========= Expand/Collapse de descripción =========
@@ -99,7 +133,8 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
 
           <tbody>
             {visibles.map((rep) => {
-              const rowId = rep?.id ?? `${safeStr(rep?.folio)}-${safeStr(rep?.telefono)}`;
+              const rowId =
+                rep?.id ?? `${safeStr(rep?.folio)}-${safeStr(rep?.telefono)}`;
               const isOpen = expanded.has(rowId);
               const desc = safeStr(rep?.descripcion);
               const shouldClamp = desc.length > 120;
@@ -113,14 +148,18 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
                   <td className="col-folio">
                     {`REP-${safeStr(rep?.id).padStart(3, "0")}`}
                   </td>
-                  <td className="col-ciudadano">{safeStr(rep?.nombre) || "No registrado"}</td>
-                  <td className="col-telefono">{safeStr(rep?.telefono) || "Sin teléfono"}</td>
+                  <td className="col-ciudadano">
+                    {safeStr(rep?.nombre) || "No registrado"}
+                  </td>
+                  <td className="col-telefono">
+                    {safeStr(rep?.telefono) || "Sin teléfono"}
+                  </td>
                   <td className="col-tipo">{safeStr(rep?.tipo_reporte)}</td>
 
                   <td className="col-desc" onClick={(e) => e.stopPropagation()}>
                     <div
-                      className={`desc ${isOpen ? "desc--expanded" : ""} ${!isOpen && shouldClamp ? "desc--clamp" : ""
-                        }`}
+                      className={`desc ${isOpen ? "desc--expanded" : ""
+                        } ${!isOpen && shouldClamp ? "desc--clamp" : ""}`}
                     >
                       {desc || "—"}
                     </div>
@@ -138,8 +177,12 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
                   <td className="col-ubi">{safeStr(rep?.ubicacion)}</td>
 
                   <td className="col-evidencia">
-                    {rep?.evidencia ? (
-                      <a href={rep.evidencia} target="_blank" rel="noopener noreferrer">
+                    {rep?.evidencia_recurso ? (
+                      <a
+                        href={resolverEvidenciaUrl(rep.evidencia_recurso)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         Ver archivo
                       </a>
                     ) : (
