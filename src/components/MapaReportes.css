@@ -1,6 +1,6 @@
 /* Contenedor general de la tarjeta del mapa */
 .mapa-card {
-  margin-top: 2rem;
+  margin-top: 5rem;
   background-color: #fff;
   border-radius: 14px;
   box-shadow: 0 10px 22px rgba(15, 23, 32, 0.06);
