@@ -40,7 +40,7 @@ const Menu = ({ usuario, onLogout }) => {
                 setFiltrosActivos={setFiltrosActivos}
               />
             </div>
-            <div className="row mt-5">
+            <div className="row mt-4">
               <h3 className="mb-3">Flujo n8n (visualización)</h3>
               <N8nFlowViewer />
             </div>

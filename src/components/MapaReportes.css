@@ -1,10 +1,10 @@
 /* Contenedor general de la tarjeta del mapa */
 .mapa-card {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  margin-top: 2rem;
+  background-color: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(15, 23, 32, 0.06);
+  padding: 1rem 1rem 1.25rem;
 }
 
 /* Título sexy */
@@ -12,7 +12,7 @@
   font-size: 1.5rem;
   font-weight: 800;
   color: #066f4d;
-  margin-bottom: 16px;
+  margin: 0 0 1rem;
 }
 
 /* Contenedor de los filtros */

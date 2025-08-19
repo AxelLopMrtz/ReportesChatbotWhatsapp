@@ -6,7 +6,7 @@ const HistorialMensajes = () => {
   const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost/api/get_historialmensajes.php")
+    fetch("http://localhost/chatbotwhatsapp/api/get_historialmensajes.php")
       .then((res) => res.json())
       .then((data) => setMensajes(data))
       .catch((error) => console.error("Error:", error));
