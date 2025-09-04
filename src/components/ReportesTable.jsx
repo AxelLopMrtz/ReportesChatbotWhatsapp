@@ -1,18 +1,24 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./ReportesTable.css";
 
+const OPCIONES_ESTADO = [
+  "Sin revisar",
+  "Esperando recepción",
+  "Completado",
+  "Rechazado",
+];
+
 const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
-  const [reportes, setReportes] = useState([]);            // datos crudos de la API
+  const [reportes, setReportes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState(() => new Set()); // filas con descripción expandida
+  const [expanded, setExpanded] = useState(() => new Set());
+  const [savingId, setSavingId] = useState(null); // fila que está guardando
 
-  // ========= Helpers seguros / normalización =========
-  const safeStr = (v) => String(v ?? ""); // convierte null/undefined en ""
-
+  // ========= Helpers =========
+  const safeStr = (v) => String(v ?? "");
   const normalizar = (s) =>
     safeStr(s).normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
 
-  // Mapea a las 4 etiquetas de las cards, tolerante a variaciones
   const normalizarEstadoParaMatch = (estado) => {
     const e = normalizar(estado);
     if (e.includes("sin revisar")) return "sin revisar";
@@ -31,9 +37,7 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
     return "estado desconocido";
   };
 
-  // ========= Resolver URL de evidencia =========
-  // Puedes cambiar esta base cuando muevas a servidor.
-  // Si defines REACT_APP_EVIDENCIAS_BASE en el futuro, se usará automáticamente.
+  // Resolver URL evidencia (usa evidencia_recurso)
   const EVID_BASE =
     process.env.REACT_APP_EVIDENCIAS_BASE ||
     "http://localhost/chatbotWwebhookdefinitivo/evidencias";
@@ -41,23 +45,16 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
   const resolverEvidenciaUrl = (raw) => {
     if (!raw) return null;
     const s = safeStr(raw).trim();
-
-    // si ya es a la base final, respeta
     if (s.startsWith(EVID_BASE)) return s;
-
-    // si NO es URL absoluta (ej. "imagen_123.jpg"), compón directo
     if (!/^https?:\/\//i.test(s)) {
       const nombre = s.split("/").pop();
       return `${EVID_BASE}/${nombre}`;
     }
-
-    // si es URL absoluta (ej. http://192.168.x.x:3001/imagen_123.jpg)
     try {
       const u = new URL(s);
-      const nombre = u.pathname.split("/").pop(); // "imagen_123.jpg"
+      const nombre = u.pathname.split("/").pop();
       return `${EVID_BASE}/${nombre}`;
     } catch {
-      // fallback bruto
       const nombre = s.split("/").pop();
       return `${EVID_BASE}/${nombre}`;
     }
@@ -85,27 +82,57 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
   // ========= Filtrado por estados (desde cards) =========
   const visibles = useMemo(() => {
     if (!Array.isArray(reportes)) return [];
-
     const activos = new Set(
       (Array.isArray(filtroEstados) ? filtroEstados : [])
         .filter((x) => x != null && safeStr(x).trim() !== "")
         .map((x) => normalizarEstadoParaMatch(x))
     );
-
     if (activos.size === 0) return reportes;
-
     return reportes.filter((rep) =>
       activos.has(normalizarEstadoParaMatch(rep?.estado))
     );
   }, [reportes, filtroEstados]);
 
-  // ========= Expand/Collapse de descripción =========
+  // ========= Expand/Collapse descripción =========
   const toggleExpand = (id) => {
     setExpanded((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
+  };
+
+  // ========= Cambio de estado (POST a PHP) =========
+  const actualizarEstado = async (rep, nuevoEstado) => {
+    if (!rep?.id || !nuevoEstado) return;
+    setSavingId(rep.id);
+    try {
+      const API_BASE = process.env.REACT_APP_API_URL
+        ? process.env.REACT_APP_API_URL
+        : "http://localhost/chatbotwhatsapp/api";
+
+      const resp = await fetch(`${API_BASE}/actualizar_estado.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reporte_id: rep.id,
+          estado: nuevoEstado,
+        }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.ok) {
+        throw new Error(data.error || "No se pudo actualizar el estado");
+      }
+
+      // ✅ Actualiza la fila en memoria (optimista)
+      setReportes((prev) =>
+        prev.map((r) => (r.id === rep.id ? { ...r, estado: nuevoEstado } : r))
+      );
+    } catch (e) {
+      alert(`Error al actualizar estado: ${e.message}`);
+    } finally {
+      setSavingId(null);
+    }
   };
 
   if (loading) return <p>Cargando reportes...</p>;
@@ -148,18 +175,21 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
                   <td className="col-folio">
                     {`REP-${safeStr(rep?.id).padStart(3, "0")}`}
                   </td>
+
                   <td className="col-ciudadano">
                     {safeStr(rep?.nombre) || "No registrado"}
                   </td>
+
                   <td className="col-telefono">
                     {safeStr(rep?.telefono) || "Sin teléfono"}
                   </td>
+
                   <td className="col-tipo">{safeStr(rep?.tipo_reporte)}</td>
 
                   <td className="col-desc" onClick={(e) => e.stopPropagation()}>
                     <div
-                      className={`desc ${isOpen ? "desc--expanded" : ""
-                        } ${!isOpen && shouldClamp ? "desc--clamp" : ""}`}
+                      className={`desc ${isOpen ? "desc--expanded" : ""} ${!isOpen && shouldClamp ? "desc--clamp" : ""
+                        }`}
                     >
                       {desc || "—"}
                     </div>
@@ -190,10 +220,25 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
                     )}
                   </td>
 
-                  <td className="col-estado">
-                    <span className={getEstadoColor(rep?.estado)}>
-                      {safeStr(rep?.estado) || "Sin estado"}
-                    </span>
+                  <td className="col-estado" onClick={(e) => e.stopPropagation()}>
+                    {/* Select editable de estado */}
+                    <select
+                      className={`estado-select ${getEstadoColor(rep?.estado)}`}
+                      value={
+                        OPCIONES_ESTADO.find(
+                          (x) => normalizar(x) === normalizar(rep?.estado)
+                        ) || "Sin revisar"
+                      }
+                      onChange={(e) => actualizarEstado(rep, e.target.value)}
+                      disabled={savingId === rep.id}
+                      title="Cambiar estado"
+                    >
+                      {OPCIONES_ESTADO.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
                   </td>
 
                   <td className="col-fecha">

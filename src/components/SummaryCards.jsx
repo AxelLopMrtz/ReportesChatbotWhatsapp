@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./CardResumen.css";
+import "./SummaryCards.css";
 
 const estados = [
   { nombre: "Sin revisar", color: "azul" },

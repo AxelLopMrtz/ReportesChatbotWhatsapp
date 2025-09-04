@@ -1,70 +1,172 @@
-# Getting Started with Create React App
+# Chatbot (React + n8n + WhatsApp + SQL)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Documento dividido en dos partes:**
 
-## Available Scripts
+**A)** Documentación (contexto y funcionamiento)
 
-In the project directory, you can run:
+**B)** Manual de implementación (montaje rápido).
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# A) Documentación (contexto y funcionamiento)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 1) Componentes del sistema
 
-### `npm test`
+* **Frontend (React)**: dashboard con login, KPIs (*SummaryCards*), mapa de reportes, tabla filtrable (componentes en `src/components/*`).
+* **API PHP (`/api/*.php`)**: scripts que **consultan la base de datos** y responden **JSON**; se **consumen por HTTP** desde React.
+* **Bot WhatsApp (Baileys)**: recibe/manda mensajes; reenvía cada entrada a **n8n**; guarda media en `evidencias/` y la sesión en `baileys_auth/`.
+* **n8n**: la lógica conversacional (IA/validaciones), guarda/consulta directo a BD.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 2) Estructura de carpetas (resumen)
 
-### `npm run build`
+### Frontend – `CHATBOTWHATSAPP/`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+CHATBOTWHATSAPP/
+├─ api/                      # Endpoints PHP (se consumen vía HTTP)
+│  ├─ actualizar_estado.php
+│  ├─ get_historialmensajes.php
+│  ├─ obtener_ciudadanos.php
+│  ├─ obtener_reportes.php
+│  ├─ resumen_reportes.php
+│  └─ usuarios_api.php
+├─ public/
+├─ src/
+│  ├─ assets/
+│  ├─ components/
+│  │  ├─ Login.jsx / Login.css
+│  │  ├─ Menu.jsx / Navbar.jsx / Navbar.css
+│  │  ├─ MapaReportes.jsx / MapaReportes.css
+│  │  ├─ ReportesFiltrables.jsx / ReportesFiltrables.css
+│  │  ├─ ReportesTable.jsx / ReportTable.jsx / TableEstilo.css
+│  │  ├─
+│  │  └─ SummaryCards.jsx / SummaryCards.css / Usuarios.jsx / Usuarios.css
+│  ├─ utils/three-background.js
+│  ├─ App.js / App.css
+│  └─ index.js / index.css
+└─ package.json
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Bot WhatsApp – `whatsapp-bot/`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+whatsapp-bot/
+├─ bailey_auth/        # sesión
+├─ evidencias/         # media guardada
+├─ index.js            # arranque del bot (config en el mismo archivo)
+├─ guardarImagenLocal.js
+└─ package.json
+```
 
-### `npm run eject`
+### n8n – `n8n/`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+<img src="flujon8n.png" alt="flujon8n" width="900">
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 3) Flujo de datos (detalle)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. **WhatsApp → Baileys → n8n**: el bot recibe texto/media, guarda evidencia (si aplica) y hace `POST` al Webhook de n8n con `{ text, wa_id, timestamp, media_path? }`.
+2. **n8n (IA/validaciones)**: guía preguntas hasta completar campos requeridos,  **guarda/consulta** a BD.
+3. **n8n → Baileys**: responde con el texto final al chat.
+4. **Web (React)**: consume `/api/*.php` para mostrar KPIs, mapa y tablas en tiempo casi real.
 
-## Learn More
+## 4) Endpoints PHP (resumen funcional)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+* `usuarios_api.php` – autenticación/usuarios.
+* `obtener_reportes.php` – lista de reportes (admite filtros por fecha/estatus si aplica).
+* `resumen_reportes.php` – KPIs para tarjetas.
+* `get_historialmensajes.php` – historial por `wa_id` o `reporte_id`.
+* `actualizar_estado.php` – transición de estatus del reporte.
+* `obtener_ciudadanos.php` – catálogo/listado.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 5) ¿Cómo **modificar** el flujo en n8n?
 
-### Code Splitting
+1. **Duplicar** el flujo (Save As) antes de cambios.
+2. **Editar** el *system prompt* del **AI Agent** (tono, pasos, catálogo `tipo_reporte`).
+3. **Actualizar** el esquema del **Structured Output Parser** (agregar/remover campos).
+4. **Mapear** `id_departamento` (nodo Code/Switch/Set).
+5. **Validar** con nodos `IF`; si falta un campo, regresar al Agent con pregunta puntual.
+6. **Probar** con *Execute Workflow* (enviar JSON ejemplo).
+7. **Activar** y **exportar** `workflow.json` para versionar.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+# B) Manual de implementación (montaje rápido)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 6) Prerrequisitos
 
-### Making a Progressive Web App
+* **Node.js** y npm.
+* **PHP** (o servidor con PHP habilitado).
+* Acceso a la **base de datos** utilizada por `/api`.
+* Flujo **n8n** corriendo.
+* Un número/dispositivo para **WhatsApp**.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 7) Montaje local de desarrollo
 
-### Advanced Configuration
+### 7.1 API PHP
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+* Servir la carpeta `api/` con tu servidor PHP (XAMPP, WAMP, Apache/Nginx, etc.).
+* Verifica conexión a BD dentro de cada `*.php` y que respondan JSON.
 
-### Deployment
+### 7.2 Frontend (React)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1. Dentro de `CHATBOTWHATSAPP/`:
 
-### `npm run build` fails to minify
+```bash
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+2. Crear `.env` (Create React App) con la URL a tu API para **desarrollo**:
+
+```
+REACT_APP_API_URL=http://localhost/chatbotwhatsapp/api
+```
+
+3. Ejecutar:
+
+```bash
+npm start
+```
+
+4. **Producción**: crear `./.env.production` con tu dominio y construir:
+
+```
+REACT_APP_API_URL=https://tu-dominio.com/api
+```
+
+```bash
+npm run build
+```
+
+### 7.3 Bot WhatsApp (Baileys)
+
+1. En `whatsapp-bot/`:
+
+```bash
+npm install
+```
+
+2. Configurar **dentro de `index.js`** las constantes necesarias.
+3. Ejecutar el bot y **escanear QR**:
+
+```bash
+node index.js
+```
+
+### 7.4 n8n
+
+* Copiar la **URL del Webhook (POST)** y asegurarse de que coincide con la usada en `whatsapp-bot/index.js`.
+
+## 8) Montaje en producción (idea general)
+
+* **API PHP** y **build de React** bajo el **mismo dominio** (`/api` y `/`).
+* **Bot** corriendo como proceso de fondo.
+* **n8n** activo con el flujo en producción y Webhook accesible desde el bot.
+
+## 9) Troubleshooting
+
+* **React no carga datos**: revisa la URL de `REACT_APP_API_URL` y que `/api/*.php` respondan JSON.
+* **Baileys desconectado**: eliminar `baileys_auth/` y volver a escanear el QR.
+* **n8n no recibe**: flujo activado y Webhook correcto en `index.js`.
+
+---

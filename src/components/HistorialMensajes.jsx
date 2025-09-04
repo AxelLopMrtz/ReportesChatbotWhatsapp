@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./TablaEstilo.css";
+import "./HistorialMensajes.css";
 
 const HistorialMensajes = () => {
   const [mensajes, setMensajes] = useState([]);
