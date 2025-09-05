@@ -13,7 +13,11 @@ const SummaryCards = ({ filtrosActivos, setFiltrosActivos }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost/chatbotwhatsapp/api/resumen_reportes.php")
+    const API_URL = process.env.REACT_APP_API_URL
+      ? `${process.env.REACT_APP_API_URL}/resumen_reportes.php`
+      : "http://localhost/chatbotwhatsapp/api/resumen_reportes.php";
+
+    fetch(API_URL)
       .then((res) => res.json())
       .then((data) => {
         setConteos({

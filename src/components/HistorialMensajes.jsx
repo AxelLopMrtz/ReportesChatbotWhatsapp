@@ -4,12 +4,24 @@ import "./HistorialMensajes.css";
 const HistorialMensajes = () => {
   const [mensajes, setMensajes] = useState([]);
   const [busqueda, setBusqueda] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost/chatbotwhatsapp/api/get_historialmensajes.php")
+    const API_URL = process.env.REACT_APP_API_URL
+      ? `${process.env.REACT_APP_API_URL}/get_historialmensajes.php`
+      : "http://localhost/chatbotwhatsapp/api/get_historialmensajes.php";
+
+    fetch(API_URL)
       .then((res) => res.json())
-      .then((data) => setMensajes(data))
-      .catch((error) => console.error("Error:", error));
+      .then((data) => {
+        setMensajes(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error al obtener historial:", error);
+        setMensajes([]);
+        setLoading(false);
+      });
   }, []);
 
   const mensajesFiltrados = mensajes.filter((m) =>
@@ -17,7 +29,11 @@ const HistorialMensajes = () => {
   );
 
   // Obtener nombres únicos para el dropdown
-  const ciudadanosUnicos = [...new Set(mensajes.map((m) => m.ciudadano).filter(Boolean))];
+  const ciudadanosUnicos = [
+    ...new Set(mensajes.map((m) => m.ciudadano).filter(Boolean)),
+  ];
+
+  if (loading) return <p>Cargando historial...</p>;
 
   return (
     <div className="tabla-container">
