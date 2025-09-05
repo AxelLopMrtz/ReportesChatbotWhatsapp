@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *");
 
-$mysqli = new mysqli("crossover.proxy.rlwy.net", "root", "TWLhLEUhjeLmtKQgkHkBKxfBYbXIkXLK", "railway", 32613);
+$mysqli = new mysqli("shinkansen.proxy.rlwy.net", "root", "vQQdHDWRSvdqLSasZEpzZaSsGcTqsAKW", "railway", 57912);
 if ($mysqli->connect_error) {
     http_response_code(500);
     echo json_encode(["error" => "Conexión fallida: " . $mysqli->connect_error]);
