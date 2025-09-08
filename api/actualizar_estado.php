@@ -20,7 +20,11 @@ if (!$reporte_id || !$estado || !in_array($estado, $permitidos, true)) {
   echo json_encode(['ok' => false, 'error' => 'Parámetros inválidos']);
   exit;
 }
-$mysqli = new mysqli("shinkansen.proxy.rlwy.net", "root", "vQQdHDWRSvdqLSasZEpzZaSsGcTqsAKW", "railway", 57912);
+
+require_once('/etc/chatbot-api/config.php');
+
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
 if ($mysqli->connect_error) {
   http_response_code(500);
   echo json_encode(['ok' => false, 'error' => 'Conexión fallida: ' . $mysqli->connect_error]);
