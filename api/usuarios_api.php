@@ -22,12 +22,11 @@ if (!$username || !$password) {
 
 require_once('/etc/chatbot-api/config.php');
 
-$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 if ($mysqli->connect_error) {
-  http_response_code(500);
-  echo json_encode(['ok' => false, 'error' => 'Conexión fallida: ' . $mysqli->connect_error]);
-  exit;
+    http_response_code(500);
+    echo json_encode(['ok'=>false,'error'=>'DB connect: '.$mysqli->connect_error]);
+    exit;
 }
 
 // Buscar usuario por username y contraseña
