@@ -1,13 +1,11 @@
-/* Contenedor general de la tarjeta del mapa */
 .mapa-card {
-  margin-top: 5rem;
   background-color: #fff;
   border-radius: 14px;
   box-shadow: 0 10px 22px rgba(15, 23, 32, 0.06);
   padding: 1rem 1rem 1.25rem;
+  margin-top: 5rem;
 }
 
-/* Título sexy */
 .titulo-mapa {
   font-size: 1.5rem;
   font-weight: 800;
@@ -15,7 +13,6 @@
   margin: 0 0 1rem;
 }
 
-/* Contenedor de los filtros */
 .filtros-container {
   display: flex;
   flex-wrap: wrap;
@@ -27,7 +24,6 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* Etiquetas de los filtros */
 .filtros-container label {
   display: flex;
   align-items: center;
@@ -35,5 +31,320 @@
   font-size: 0.95rem;
   gap: 6px;
   color: #444;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.reporte-seleccionado {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.reporte-seleccionado h5 {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.reporte-detalle strong {
+  color: #1f2937;
+  font-size: 1.1rem;
+}
+
+.reporte-detalle p {
+  margin: 8px 0;
+  color: #4b5563;
+}
+
+.reporte-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.ciudadano {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.estado-badge {
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.btn-cerrar {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px;
+}
+
+.btn-cerrar:hover {
+  color: #374151;
+}
+
+.mapa-simulado {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f1f8e9 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+.clusters-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.cluster {
+  position: absolute;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 10;
+}
+
+.cluster:hover {
+  transform: scale(1.1);
+}
+
+.cluster-multiple .cluster-badge {
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  border: 3px solid white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cluster-single .marker-single {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.cluster-expandido {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.cluster-expandido h5 {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-weight: 600;
+}
+
+.reportes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reporte-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.reporte-item:hover {
+  background: #f3f4f6;
+}
+
+.estado-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.reporte-info {
+  flex: 1;
+}
+
+.reporte-info strong {
+  display: block;
+  color: #1f2937;
+  font-size: 0.9rem;
+}
+
+.reporte-info p {
+  margin: 4px 0;
+  color: #4b5563;
+  font-size: 0.85rem;
+}
+
+.reporte-info small {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+/* Enhanced leaflet container styles for better integration */
+.leaflet-container {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 32, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.leaflet-popup-content {
+  margin: 16px 20px;
+  line-height: 1.5;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.leaflet-popup-content strong {
+  color: #066f4d;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.leaflet-popup-content br+strong {
+  margin-top: 12px;
+  display: inline-block;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Added leaflet.markercluster custom styles */
+.marker-cluster-small {
+  background-color: rgba(16, 185, 129, 0.15);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+}
+
+.marker-cluster-small div {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.marker-cluster-medium {
+  background-color: rgba(245, 158, 11, 0.15);
+  border: 2px solid rgba(245, 158, 11, 0.3);
+}
+
+.marker-cluster-medium div {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.marker-cluster-large {
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 2px solid rgba(239, 68, 68, 0.3);
+}
+
+.marker-cluster-large div {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Contenedor principal del cluster con animaciones suaves */
+.marker-cluster {
+  background-clip: padding-box;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.marker-cluster:hover {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+/* Círculo interior del cluster con tipografía mejorada */
+.marker-cluster div {
+  width: 36px;
+  height: 36px;
+  margin-left: 4px;
+  margin-top: 4px;
+  text-align: center;
+  border-radius: 50%;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* Texto del cluster con mejor contraste */
+.marker-cluster span {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Responsive improvements for mobile devices */
+@media (max-width: 768px) {
+  .mapa-card {
+    margin-top: 2rem;
+    padding: 0.75rem;
+  }
+
+  .titulo-mapa {
+    font-size: 1.25rem;
+  }
+
+  .filtros-container {
+    padding: 10px 15px;
+    gap: 10px;
+  }
+
+  .marker-cluster div {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
 }
