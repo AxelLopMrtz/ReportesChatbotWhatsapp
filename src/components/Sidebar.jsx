@@ -42,6 +42,12 @@ const Sidebar = ({ visible, onClose, onSelect, vistaActual }) => {
           <FaFileAlt /> Reportes
         </li>
         <li
+          className={vistaActual === "dashboard" ? "activo" : ""}
+          onClick={() => onSelect("dashboard")}
+        >
+          <FaHome /> Dashboard
+        </li>
+        <li
           className={vistaActual === "config" ? "activo" : ""}
           onClick={() => onSelect("config")}
         >

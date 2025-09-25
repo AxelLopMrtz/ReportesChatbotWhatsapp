@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import "./ReportesTable.css";
 
 const OPCIONES_ESTADO = [
@@ -8,16 +8,24 @@ const OPCIONES_ESTADO = [
   "Rechazado",
 ];
 
-const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
-  const [reportes, setReportes] = useState([]);
-  const [loading, setLoading] = useState(true);
+const ReportesTable = ({
+  reportes = [],
+  cargando = false,
+  error = null,
+  onSeleccionar,
+  filtroEstados = [],
+}) => {
   const [expanded, setExpanded] = useState(() => new Set());
-  const [savingId, setSavingId] = useState(null); // fila que está guardando
+  const [savingId, setSavingId] = useState(null);
 
-  // ========= Helpers =========
+  // Helpers
   const safeStr = (v) => String(v ?? "");
   const normalizar = (s) =>
-    safeStr(s).normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
+    safeStr(s)
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase()
+      .trim();
 
   const normalizarEstadoParaMatch = (estado) => {
     const e = normalizar(estado);
@@ -37,7 +45,7 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
     return "estado desconocido";
   };
 
-  // Resolver URL evidencia (usa evidencia_recurso)
+  // resolver URL evidencia (usa evidencia_recurso)
   const EVID_BASE =
     process.env.REACT_APP_EVIDENCIAS_BASE ||
     "http://localhost/chatbotWwebhookdefinitivo/evidencias";
@@ -60,26 +68,7 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
     }
   };
 
-  // ========= Data fetch =========
-  useEffect(() => {
-    const API_URL = process.env.REACT_APP_API_URL
-      ? `${process.env.REACT_APP_API_URL}/obtener_reportes.php`
-      : "http://localhost/chatbotwhatsapp/api/obtener_reportes.php";
-
-    fetch(API_URL)
-      .then((res) => res.json())
-      .then((data) => {
-        setReportes(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error al obtener reportes:", err);
-        setReportes([]);
-        setLoading(false);
-      });
-  }, []);
-
-  // ========= Filtrado por estados (desde cards) =========
+  // ========= Filtrado por estados =========
   const visibles = useMemo(() => {
     if (!Array.isArray(reportes)) return [];
     const activos = new Set(
@@ -124,10 +113,8 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
         throw new Error(data.error || "No se pudo actualizar el estado");
       }
 
-      // ✅ Actualiza la fila en memoria (optimista)
-      setReportes((prev) =>
-        prev.map((r) => (r.id === rep.id ? { ...r, estado: nuevoEstado } : r))
-      );
+      // Actualiza la fila en memoria (optimista)
+      rep.estado = nuevoEstado;
     } catch (e) {
       alert(`Error al actualizar estado: ${e.message}`);
     } finally {
@@ -135,7 +122,9 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
     }
   };
 
-  if (loading) return <p>Cargando reportes...</p>;
+  // ========= Render =========
+  if (cargando) return <p>Cargando reportes...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!visibles.length) return <p>No hay reportes con los filtros actuales.</p>;
 
   return (
@@ -184,7 +173,9 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
                     {safeStr(rep?.telefono) || "Sin teléfono"}
                   </td>
 
-                  <td className="col-tipo">{safeStr(rep?.tipo_reporte)}</td>
+                  <td className="col-tipo">
+                    {safeStr(rep?.tipo_reporte)}
+                  </td>
 
                   <td className="col-desc" onClick={(e) => e.stopPropagation()}>
                     <div
@@ -220,8 +211,10 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
                     )}
                   </td>
 
-                  <td className="col-estado" onClick={(e) => e.stopPropagation()}>
-                    {/* Select editable de estado */}
+                  <td
+                    className="col-estado"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <select
                       className={`estado-select ${getEstadoColor(rep?.estado)}`}
                       value={
