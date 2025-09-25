@@ -117,7 +117,10 @@ const Dashboard = ({ reportes = [] }) => {
     const [filtroTipo, setFiltroTipo] = useState("");
 
     // Para selects
-    const estados = ["Sin revisar", "Esperando recepción", "Completado", "Rechazado"];
+    const estados = useMemo(
+        () => ["Sin revisar", "Esperando recepción", "Completado", "Rechazado"],
+        []
+    );
     const tipos = useMemo(
         () => [...new Set(reportes.map((r) => r.tipo_reporte).filter(Boolean))],
         [reportes]
@@ -178,7 +181,7 @@ const Dashboard = ({ reportes = [] }) => {
                         (r) => normalizar(r.estado) === normalizar(estado)
                     ).length
             ),
-        [reportesFiltrados]
+        [estados, reportesFiltrados]
     );
 
     const conteoTipos = useMemo(
