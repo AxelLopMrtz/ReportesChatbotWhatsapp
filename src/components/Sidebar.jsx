@@ -8,6 +8,9 @@ import {
   FaFileAlt,
   FaUserCog,
 } from "react-icons/fa";
+import {
+  TbLayoutDashboardFilled
+} from "react-icons/tb";
 
 const Sidebar = ({ visible, onClose, onSelect, vistaActual }) => {
   return (
@@ -22,6 +25,12 @@ const Sidebar = ({ visible, onClose, onSelect, vistaActual }) => {
           onClick={() => onSelect("inicio")}
         >
           <FaHome /> Inicio
+        </li>
+        <li
+          className={vistaActual === "dashboard" ? "activo" : ""}
+          onClick={() => onSelect("dashboard")}
+        >
+          <TbLayoutDashboardFilled /> Dashboard
         </li>
         <li
           className={vistaActual === "historial" ? "activo" : ""}
@@ -40,12 +49,6 @@ const Sidebar = ({ visible, onClose, onSelect, vistaActual }) => {
           onClick={() => onSelect("reportes")}
         >
           <FaFileAlt /> Reportes
-        </li>
-        <li
-          className={vistaActual === "dashboard" ? "activo" : ""}
-          onClick={() => onSelect("dashboard")}
-        >
-          <FaHome /> Dashboard
         </li>
         <li
           className={vistaActual === "config" ? "activo" : ""}

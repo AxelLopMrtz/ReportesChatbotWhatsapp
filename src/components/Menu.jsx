@@ -72,11 +72,6 @@ const Menu = ({ usuario, onLogout }) => {
             </div>
 
             <div className="row mt-4">
-              <h3 className="mb-3">Flujo n8n (visualización)</h3>
-              <N8nFlowViewer />
-            </div>
-
-            <div className="row mt-4">
               <MapaReportes
                 filtrosActivos={filtrosActivos}
                 marcadorSeleccionado={marcadorSeleccionado}
@@ -94,6 +89,11 @@ const Menu = ({ usuario, onLogout }) => {
                 onSeleccionar={(id) => setMarcadorSeleccionado(id)}
                 filtroEstados={filtrosActivos}
               />
+            </div>
+
+            <div className="row mt-4">
+              <h3 className="mb-3">Flujo n8n (visualización)</h3>
+              <N8nFlowViewer />
             </div>
           </>
         );
