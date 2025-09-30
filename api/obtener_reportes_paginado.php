@@ -18,18 +18,13 @@ $pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
 $limite = isset($_GET['limite']) ? max(10, intval($_GET['limite'])) : 50;
 $offset = ($pagina - 1) * $limite;
 
-// 📦 Query paginada con SQL_CALC_FOUND_ROWS para contar el total
-$query = "
-SELECT SQL_CALC_FOUND_ROWS 
-    r.id,
-    r.tipo_reporte,
-    r.descripcion,
-    r.evidencia_recurso,
-    r.ubicacion,
-    r.fecha_hora,
-    c.nombre,
-    c.telefono,
-    e.estado
+// 🎯 Parámetros de filtros
+$filtroEstado = trim($_GET['estado'] ?? '');
+$filtroTipo   = trim($_GET['tipo'] ?? '');
+$filtroCiudadano = trim($_GET['ciudadano'] ?? '');
+
+// 📦 Query base
+$queryBase = "
 FROM reporte r
 JOIN ciudadano c ON r.ciudadano_id = c.id
 LEFT JOIN (
@@ -41,6 +36,34 @@ LEFT JOIN (
         GROUP BY reporte_id
     ) t2 ON t1.reporte_id = t2.reporte_id AND t1.fecha_estado = t2.max_fecha
 ) e ON r.id = e.reporte_id
+WHERE 1=1
+";
+
+// ✅ Aplicar filtros dinámicamente
+if ($filtroEstado !== '') {
+    $queryBase .= " AND e.estado LIKE '%" . $mysqli->real_escape_string($filtroEstado) . "%'";
+}
+if ($filtroTipo !== '') {
+    $queryBase .= " AND r.tipo_reporte LIKE '%" . $mysqli->real_escape_string($filtroTipo) . "%'";
+}
+if ($filtroCiudadano !== '') {
+    $q = $mysqli->real_escape_string($filtroCiudadano);
+    $queryBase .= " AND (c.nombre LIKE '%$q%' OR c.telefono LIKE '%$q%')";
+}
+
+// 📊 Query paginada
+$query = "
+SELECT SQL_CALC_FOUND_ROWS 
+    r.id,
+    r.tipo_reporte,
+    r.descripcion,
+    r.evidencia_recurso,
+    r.ubicacion,
+    r.fecha_hora,
+    c.nombre,
+    c.telefono,
+    e.estado
+$queryBase
 ORDER BY r.fecha_hora DESC
 LIMIT $offset, $limite
 ";
@@ -48,7 +71,7 @@ LIMIT $offset, $limite
 $result = $mysqli->query($query);
 $data = [];
 
-// 🧠 Total real de reportes
+// 🧮 Total de registros
 $totalResult = $mysqli->query("SELECT FOUND_ROWS() as total");
 $totalRow = $totalResult->fetch_assoc();
 $total = intval($totalRow['total'] ?? 0);
@@ -93,5 +116,7 @@ while ($row = $result->fetch_assoc()) {
 echo json_encode([
     'ok' => true,
     'data' => $data,
-    'total' => $total
+    'total' => $total,
+    'pagina' => $pagina,
+    'limite' => $limite
 ], JSON_UNESCAPED_UNICODE);
