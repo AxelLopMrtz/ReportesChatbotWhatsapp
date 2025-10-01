@@ -6,7 +6,7 @@ import {
   FaInbox,
   FaUsers,
   FaFileAlt,
-  FaUserCog,
+  // FaUserCog,
 } from "react-icons/fa";
 import {
   TbLayoutDashboardFilled
@@ -33,6 +33,12 @@ const Sidebar = ({ visible, onClose, onSelect, vistaActual }) => {
           <TbLayoutDashboardFilled /> Dashboard
         </li>
         <li
+          className={vistaActual === "reportes" ? "activo" : ""}
+          onClick={() => onSelect("reportes")}
+        >
+          <FaFileAlt /> Reportes
+        </li>
+        <li
           className={vistaActual === "historial" ? "activo" : ""}
           onClick={() => onSelect("historial")}
         >
@@ -44,18 +50,12 @@ const Sidebar = ({ visible, onClose, onSelect, vistaActual }) => {
         >
           <FaUsers /> Ciudadanos
         </li>
-        <li
-          className={vistaActual === "reportes" ? "activo" : ""}
-          onClick={() => onSelect("reportes")}
-        >
-          <FaFileAlt /> Reportes
-        </li>
-        <li
+        {/* <li
           className={vistaActual === "config" ? "activo" : ""}
           onClick={() => onSelect("config")}
         >
           <FaUserCog /> Gestión de Usuarios
-        </li>
+        </li> */}
       </ul>
     </div>
   );

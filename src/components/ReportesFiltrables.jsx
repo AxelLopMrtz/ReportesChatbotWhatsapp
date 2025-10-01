@@ -14,12 +14,14 @@ const ReportesFiltrables = () => {
   const [reportes, setReportes] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [paginaActual, setPaginaActual] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState(null);
   const LIMITE_POR_PAGINA = 50;
 
   const [desde, setDesde] = useState(null);
   const [hasta, setHasta] = useState(null);
-  const [ciudadano, setCiudadano] = useState(null);
-  const [telefono, setTelefono] = useState(null);
+  const [ciudadano, setCiudadano] = useState("");
+  const [telefono, setTelefono] = useState("");
   const [estado, setEstado] = useState(null);
   const [folio, setFolio] = useState("");
 
@@ -34,22 +36,6 @@ const ReportesFiltrables = () => {
     return "otro";
   };
 
-  const getEstadoColor = (estado) => {
-    const norm = normalizarEstado(estado);
-    switch (norm) {
-      case "completado":
-        return "badge verde";
-      case "rechazado":
-        return "badge rojo";
-      case "esperando":
-        return "badge naranja";
-      case "sin_revisar":
-        return "badge morado";
-      default:
-        return "badge gris";
-    }
-  };
-
   const filtrar = useCallback(() => {
     const hastaFin = hasta
       ? new Date(hasta.getFullYear(), hasta.getMonth(), hasta.getDate(), 23, 59, 59, 999)
@@ -59,17 +45,21 @@ const ReportesFiltrables = () => {
       const fecha = new Date(rep.fecha_hora);
       const cumpleFecha =
         (!desde || fecha >= desde) && (!hastaFin || fecha <= hastaFin);
+
       const cumpleCiudadano = ciudadano
-        ? rep.nombre === ciudadano.value
+        ? rep.nombre?.toLowerCase().includes(ciudadano.toLowerCase())
         : true;
+
       const cumpleTelefono = telefono
-        ? rep.telefono === telefono.value
+        ? String(rep.telefono || "").includes(telefono)
         : true;
+
       const cumpleEstado = estado
         ? normalizarEstado(rep.estado) === estado.value
         : true;
+
       const cumpleFolio = folio
-        ? String(rep.id).includes(folio.replace(/^REP-/, ""))
+        ? String(rep.id).toLowerCase().includes(folio.toLowerCase())
         : true;
 
       return (
@@ -85,8 +75,8 @@ const ReportesFiltrables = () => {
     setPaginaActual(1);
   }, [reportes, desde, hasta, ciudadano, telefono, estado, folio]);
 
-
   useEffect(() => {
+    setLoading(true);
     fetch(API_URL)
       .then((res) => res.json())
       .then((data) => {
@@ -97,7 +87,8 @@ const ReportesFiltrables = () => {
       })
       .catch((err) => {
         console.error("Error al obtener reportes:", err);
-      });
+      })
+      .finally(() => setLoading(false));
   }, [API_URL]);
 
   useEffect(() => {
@@ -107,8 +98,8 @@ const ReportesFiltrables = () => {
   const limpiarFiltros = () => {
     setDesde(null);
     setHasta(null);
-    setCiudadano(null);
-    setTelefono(null);
+    setCiudadano("");
+    setTelefono("");
     setEstado(null);
     setFolio("");
     setFiltered(reportes);
@@ -128,7 +119,7 @@ const ReportesFiltrables = () => {
     ];
 
     const filas = filtered.map((r) => [
-      `REP-${r.id}`,
+      r.id, // ya incluye rep-
       r.nombre,
       r.telefono,
       r.tipo_reporte,
@@ -139,18 +130,17 @@ const ReportesFiltrables = () => {
       new Date(r.fecha_hora).toLocaleString("es-MX"),
     ]);
 
-    // Comillas dobles + BOM UTF-8
     const csvContent = [encabezados, ...filas]
       .map((row) =>
         row
           .map((cell) =>
-            `"${String(cell ?? "").replace(/"/g, '""')}"` // escapamos comillas internas
+            `"${String(cell ?? "").replace(/"/g, '""')}"`
           )
           .join(",")
       )
       .join("\n");
 
-    const BOM = "\uFEFF"; // BOM UTF-8
+    const BOM = "\uFEFF";
     const blob = new Blob([BOM + csvContent], {
       type: "text/csv;charset=utf-8;",
     });
@@ -162,19 +152,34 @@ const ReportesFiltrables = () => {
     URL.revokeObjectURL(url);
   };
 
-  const opcionesCiudadanos = Array.from(
-    new Set(reportes.map((r) => r.nombre))
-  ).map((nombre) => ({
-    label: nombre,
-    value: nombre,
-  }));
-
-  const opcionesTelefonos = Array.from(
-    new Set(reportes.map((r) => r.telefono))
-  ).map((tel) => ({
-    label: tel,
-    value: tel,
-  }));
+  const actualizarEstado = (rep, nuevoEstado) => {
+    setSavingId(rep.id);
+    fetch(
+      (process.env.REACT_APP_API_URL || "http://localhost/api") +
+      "/actualizar_estado.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: rep.id, estado: nuevoEstado }),
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok) {
+          setReportes((prev) =>
+            prev.map((r) =>
+              r.id === rep.id ? { ...r, estado: nuevoEstado } : r
+            )
+          );
+          setFiltered((prev) =>
+            prev.map((r) =>
+              r.id === rep.id ? { ...r, estado: nuevoEstado } : r
+            )
+          );
+        }
+      })
+      .finally(() => setSavingId(null));
+  };
 
   const opcionesEstados = [
     { label: "Sin revisar", value: "sin_revisar" },
@@ -244,27 +249,23 @@ const ReportesFiltrables = () => {
       <div className="filtros-reportes">
         <div className="campo-filtro">
           <label>Ciudadano:</label>
-          <Select
-            options={opcionesCiudadanos}
+          <input
+            type="text"
             value={ciudadano}
-            onChange={setCiudadano}
-            isClearable
+            onChange={(e) => setCiudadano(e.target.value)}
             placeholder="Buscar por nombre"
-            className="react-select-container"
-            classNamePrefix="react-select"
+            className="input-text"
           />
         </div>
 
         <div className="campo-filtro">
           <label>Teléfono:</label>
-          <Select
-            options={opcionesTelefonos}
+          <input
+            type="text"
             value={telefono}
-            onChange={setTelefono}
-            isClearable
+            onChange={(e) => setTelefono(e.target.value)}
             placeholder="Buscar por número"
-            className="react-select-container"
-            classNamePrefix="react-select"
+            className="input-text"
           />
         </div>
 
@@ -287,7 +288,7 @@ const ReportesFiltrables = () => {
             type="text"
             value={folio}
             onChange={(e) => setFolio(e.target.value)}
-            placeholder="Ej. REP-001 o 15"
+            placeholder="Ej. rep-123"
             className="input-text"
           />
         </div>
@@ -324,58 +325,73 @@ const ReportesFiltrables = () => {
         </div>
       </div>
 
-      <div className="tabla-wrapper-filtrables">
-        <table className="tabla-reportes-filtrables">
-          <thead>
-            <tr>
-              <th>Folio</th>
-              <th>Ciudadano</th>
-              <th>Teléfono</th>
-              <th>Tipo</th>
-              <th>Descripción</th>
-              <th>Ubicación</th>
-              <th>Evidencia</th>
-              <th>Estado</th>
-              <th>Fecha</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginados.map((rep) => (
-              <tr key={rep.id}>
-                <td>REP-{rep.id}</td>
-                <td>{rep.nombre}</td>
-                <td>{rep.telefono}</td>
-                <td>{rep.tipo_reporte}</td>
-                <td>{rep.descripcion}</td>
-                <td>{rep.ubicacion}</td>
-                <td>
-                  {rep.evidencia ? (
-                    <a
-                      href={rep.evidencia}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Ver
-                    </a>
-                  ) : (
-                    "Sin evidencia"
-                  )}
-                </td>
-                <td>
-                  <span className={getEstadoColor(rep.estado)}>
-                    {opcionesEstados.find(
-                      (opt) => opt.value === normalizarEstado(rep.estado)
-                    )?.label || rep.estado}
-                  </span>
-                </td>
-                <td>{new Date(rep.fecha_hora).toLocaleString("es-MX")}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {loading ? (
+        <p style={{ textAlign: "center", padding: "20px", fontWeight: "600" }}>
+          Cargando datos...
+        </p>
+      ) : (
+        <>
+          <div className="tabla-wrapper-filtrables">
+            <table className="tabla-reportes-filtrables">
+              <thead>
+                <tr>
+                  <th>Folio</th>
+                  <th>Ciudadano</th>
+                  <th>Teléfono</th>
+                  <th>Tipo</th>
+                  <th>Descripción</th>
+                  <th>Ubicación</th>
+                  <th>Evidencia</th>
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginados.map((rep) => (
+                  <tr key={rep.id}>
+                    <td>{rep.id}</td>
+                    <td>{rep.nombre}</td>
+                    <td>{rep.telefono}</td>
+                    <td>{rep.tipo_reporte}</td>
+                    <td>{rep.descripcion}</td>
+                    <td>{rep.ubicacion}</td>
+                    <td>
+                      {rep.evidencia ? (
+                        <a
+                          href={rep.evidencia}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Ver
+                        </a>
+                      ) : (
+                        "Sin evidencia"
+                      )}
+                    </td>
+                    <td>
+                      <select
+                        className={`estado-${normalizarEstado(rep.estado)}`}
+                        value={rep.estado}
+                        onChange={(e) => actualizarEstado(rep, e.target.value)}
+                        disabled={savingId === rep.id}
+                      >
+                        {opcionesEstados.map((opt) => (
+                          <option key={opt.value} value={opt.label}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>{new Date(rep.fecha_hora).toLocaleString("es-MX")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-      <div className="paginacion-filtrables">{renderPaginacion()}</div>
+          <div className="paginacion-filtrables">{renderPaginacion()}</div>
+        </>
+      )}
     </div>
   );
 };

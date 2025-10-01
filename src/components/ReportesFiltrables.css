@@ -250,6 +250,46 @@
   margin: 0 !important;
 }
 
+/* Select de estado en la tabla */
+.tabla-reportes-filtrables td select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: white;
+  cursor: pointer;
+  min-width: 100px;
+  height: 28px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Colores para cada estado */
+.tabla-reportes-filtrables td select.estado-completado {
+  background-color: #10b981;
+  color: white;
+  border-color: #059669;
+}
+
+.tabla-reportes-filtrables td select.estado-rechazado {
+  background-color: #ef4444;
+  color: white;
+  border-color: #dc2626;
+}
+
+.tabla-reportes-filtrables td select.estado-esperando {
+  background-color: #f59e0b;
+  color: white;
+  border-color: #d97706;
+}
+
+.tabla-reportes-filtrables td select.estado-sin_revisar {
+  background-color: #8b5cf6;
+  color: white;
+  border-color: #7c3aed;
+}
+
 /* Header sticky para que se mantenga visible al hacer scroll */
 .tabla-reportes-filtrables thead {
   background-color: #066f4d;
