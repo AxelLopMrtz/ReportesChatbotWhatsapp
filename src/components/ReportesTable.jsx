@@ -10,19 +10,18 @@ const ORDEN_ESTADOS = [
   "Rechazado",
 ]
 
-// Normaliza strings con/ sin acentos para comparar
+// Helpers
 const safeStr = (v) => String(v ?? "")
 const normalizar = (s) =>
   safeStr(s).normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim()
 
-// Mapea cualquier variante al valor canónico que guardas en BD
 const canonEstado = (estado) => {
   const e = normalizar(estado)
   if (e.includes("sin revisar")) return "Sin revisar"
   if (e.includes("esperando")) return "Esperando recepción"
   if (e.includes("completado")) return "Completado"
   if (e.includes("rechazado")) return "Rechazado"
-  return safeStr(estado) // fallback
+  return safeStr(estado)
 }
 
 const getEstadoColor = (estado) => {
@@ -41,7 +40,7 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState(null)
 
-  // Conjunto de estados canónicos (únicos)
+  // Estados seleccionados en formato canónico
   const estadosSeleccionados = useMemo(() => {
     const set = new Set(
       (Array.isArray(filtroEstados) ? filtroEstados : []).map(canonEstado)
@@ -49,27 +48,31 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
     return Array.from(set)
   }, [filtroEstados])
 
-  // Clave estable para detectar cambios (aunque “vuelva a lo mismo” en valor)
+  // Clave para resetear página cuando cambian los filtros
   const filtroKey = useMemo(
-    () => JSON.stringify(estadosSeleccionados.sort((a, b) =>
-      ORDEN_ESTADOS.indexOf(a) - ORDEN_ESTADOS.indexOf(b)
-    )),
+    () =>
+      JSON.stringify(
+        estadosSeleccionados.sort(
+          (a, b) => ORDEN_ESTADOS.indexOf(a) - ORDEN_ESTADOS.indexOf(b)
+        )
+      ),
     [estadosSeleccionados]
   )
 
-  const totalPaginas = Math.ceil(Math.max(0, totalReportes) / LIMITE_POR_PAGINA)
+  const totalPaginas = Math.ceil(
+    Math.max(0, totalReportes) / LIMITE_POR_PAGINA
+  )
 
   const cambiarPagina = (nueva) => {
     if (nueva < 1 || nueva > Math.max(1, totalPaginas)) return
     setPaginaActual(nueva)
   }
 
-  // Resetear a página 1 cuando cambian los filtros
   useEffect(() => {
     setPaginaActual(1)
   }, [filtroKey])
 
-  // Fetch con paginación + múltiples estados
+  // Fetch con filtros
   useEffect(() => {
     const API_URL =
       (process.env.REACT_APP_API_URL || "http://localhost/api") +
@@ -78,19 +81,8 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
     const params = new URLSearchParams({
       pagina: String(paginaActual),
       limite: String(LIMITE_POR_PAGINA),
-      // Para compatibilidad hacia atrás: mando también "estado"
-      // (primer estado por orden canónico), por si tu API aún no soporta "estados"
-      ...(estadosSeleccionados.length > 0
-        ? {
-          estado:
-            estadosSeleccionados
-              .slice() // copy
-              .sort((a, b) => ORDEN_ESTADOS.indexOf(a) - ORDEN_ESTADOS.indexOf(b))[0],
-        }
-        : {}),
     })
 
-    // Nuevo: enviar TODOS los estados seleccionados como CSV
     if (estadosSeleccionados.length > 0) {
       params.append("estados", estadosSeleccionados.join(","))
     }
@@ -124,7 +116,7 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
 
     fetchReportes()
     return () => controller.abort()
-  }, [paginaActual, filtroKey, estadosSeleccionados]) // usa filtroKey para forzar refetch
+  }, [paginaActual, filtroKey, estadosSeleccionados])
 
   // Exportar CSV
   const exportToCsv = (rows, filename = "export.csv") => {
@@ -146,14 +138,16 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
       headers.join(","),
       ...rows.map((rep) => {
         const fila = [
-          `REP-${String(rep.id).padStart(3, "0")}`,
+          safeStr(rep.id),
           safeStr(rep.nombre),
           safeStr(rep.telefono),
           safeStr(rep.tipo_reporte),
           safeStr(rep.descripcion),
           safeStr(rep.ubicacion),
           safeStr(rep.estado),
-          rep.fecha_hora ? new Date(rep.fecha_hora).toLocaleString("es-MX") : "",
+          rep.fecha_hora
+            ? new Date(rep.fecha_hora).toLocaleString("es-MX")
+            : "",
         ]
         return fila
           .map((val) => {
@@ -190,21 +184,16 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
 
     const params = new URLSearchParams({
       pagina: "1",
-      limite: String(Math.max(1, totalReportes || 100000)), // traerse todo lo filtrado
+      limite: String(Math.max(1, totalReportes || 100000)),
     })
     if (estadosSeleccionados.length > 0) {
       params.append("estados", estadosSeleccionados.join(","))
-      // compat:
-      params.append(
-        "estado",
-        estadosSeleccionados
-          .slice()
-          .sort((a, b) => ORDEN_ESTADOS.indexOf(a) - ORDEN_ESTADOS.indexOf(b))[0]
-      )
     }
 
     try {
-      const res = await fetch(`${API_URL}?${params.toString()}`, { cache: "no-store" })
+      const res = await fetch(`${API_URL}?${params.toString()}`, {
+        cache: "no-store",
+      })
       const json = await res.json()
       exportToCsv(json.data || [], "reportes_filtrados.csv")
     } catch (e) {
@@ -216,13 +205,12 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
     <div className="tabla-reportes-container">
       <h3>Reportes recientes</h3>
 
-      {/* Botones de exportar */}
       <div className="botones-exportar">
         <button className="boton-exportar" onClick={handleExportPagina}>
           Exportar página actual
         </button>
         <button className="boton-exportar" onClick={handleExportFiltrados}>
-          Exportar filtrados
+          Exportar CSV
         </button>
       </div>
 
@@ -253,14 +241,16 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
                     onClick={() => onSeleccionar?.(rep.id)}
                     style={{ cursor: "pointer" }}
                   >
-                    <td>{`${String(rep.id).padStart(3, "0")}`}</td>
+                    <td>{safeStr(rep.id)}</td>
                     <td>{safeStr(rep.nombre) || "—"}</td>
                     <td>{safeStr(rep.telefono) || "—"}</td>
                     <td>{safeStr(rep.tipo_reporte) || "—"}</td>
                     <td>{safeStr(rep.descripcion) || "—"}</td>
                     <td>{safeStr(rep.ubicacion) || "—"}</td>
                     <td>
-                      <span className={getEstadoColor(rep.estado)}>{rep.estado}</span>
+                      <span className={getEstadoColor(rep.estado)}>
+                        {rep.estado}
+                      </span>
                     </td>
                     <td>
                       {rep.fecha_hora
@@ -273,7 +263,6 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
             </table>
           </div>
 
-          {/* Paginador */}
           <div className="paginacion">
             <button onClick={() => cambiarPagina(1)} disabled={paginaActual === 1}>
               « Primera
@@ -288,7 +277,9 @@ const ReportesTable = ({ onSeleccionar, filtroEstados = [] }) => {
             {Array.from({ length: totalPaginas }, (_, i) => i + 1)
               .filter(
                 (n) =>
-                  Math.abs(n - paginaActual) <= 2 || n === 1 || n === totalPaginas
+                  Math.abs(n - paginaActual) <= 2 ||
+                  n === 1 ||
+                  n === totalPaginas
               )
               .map((n, i, arr) => {
                 const prev = arr[i - 1]
