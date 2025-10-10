@@ -389,6 +389,10 @@ const ReportesFiltrables = () => {
             </table>
           </div>
 
+          <p style={{ textAlign: "right", fontWeight: "600", margin: "10px 0" }}>
+            Mostrando <strong>{filtered.length}</strong> de <strong>{reportes.length}</strong> reportes
+          </p>
+
           <div className="paginacion-filtrables">{renderPaginacion()}</div>
         </>
       )}

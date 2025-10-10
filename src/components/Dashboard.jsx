@@ -239,13 +239,13 @@ const Dashboard = ({ reportes = [] }) => {
             },
         },
         elements: {
-            line: { tension: 0.4, borderWidth: 3 },
+            line: { tension: 0, borderWidth: 2 },
             point: {
-                radius: 5,
+                radius: 2,
                 backgroundColor: "#2980b9",
                 borderColor: "#fff",
                 borderWidth: 2,
-                hoverRadius: 7,
+                hoverRadius: 5,
             },
         },
         scales: {

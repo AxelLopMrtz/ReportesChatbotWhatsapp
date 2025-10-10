@@ -150,7 +150,7 @@ td {
 .leaflet-container {
   border-radius: 12px;
   box-shadow: var(--sombra);
-  height: 500px !important;
+  height: 550px !important;
   width: 100% !important;
   margin: 0 auto;
 }

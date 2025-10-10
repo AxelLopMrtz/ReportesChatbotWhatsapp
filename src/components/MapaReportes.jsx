@@ -142,7 +142,7 @@ const IrAlMarcador = ({ reporte }) => {
 
 const MapaReportes = ({ filtrosActivos = [], marcadorSeleccionado }) => {
   const [reportes, setReportes] = useState([])
-  const [mapCenter, setMapCenter] = useState([19.3, -99.15])
+  const [mapCenter, setMapCenter] = useState([19.26, -99.16])
 
   useEffect(() => {
     const API_URL = (process.env.REACT_APP_API_URL || "http://localhost/api") + "/obtener_reportes.php"
