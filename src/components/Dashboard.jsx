@@ -355,7 +355,7 @@ const Dashboard = ({ reportes = [] }) => {
                 <div className="dashboard-card full-width">
                     <h5 className="dashboard-card-title">Mapa de Calor</h5>
                     <div className="map-container">
-                        <MapContainer center={[19.26, -99.16]} zoom={12} style={{ height: "100%", width: "100%" }}>
+                        <MapContainer center={[19.23, -99.20]} zoom={12} style={{ height: "100%", width: "100%" }}>
                             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                             <HeatmapLayer reportes={reportesFiltrados} />
                         </MapContainer>
