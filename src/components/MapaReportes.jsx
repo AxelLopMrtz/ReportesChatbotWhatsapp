@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { MapContainer, TileLayer, useMap } from "react-leaflet"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { MapContainer, TileLayer, Popup, useMap } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
 import "leaflet.markercluster/dist/MarkerCluster.css"
 import "leaflet.markercluster/dist/MarkerCluster.Default.css"
@@ -10,7 +10,7 @@ import "leaflet.markercluster"
 import axios from "axios"
 import "./MapaReportes.css"
 
-// Pre-crea iconos para reutilizarlos
+// ================= ICONOS =================
 const ICONS = {
   Completado: new L.Icon({
     iconUrl: "/pins/marker-icon-2x-green.png",
@@ -49,6 +49,7 @@ const ICONS = {
   }),
 }
 
+// ================= FUNCIONES AUXILIARES =================
 const norm = (s) =>
   String(s ?? "")
     .normalize("NFD")
@@ -60,34 +61,49 @@ const estadoVisual = (estadoCrudo) => {
   const e = norm(estadoCrudo)
   if (e === "completado") return "Completado"
   if (e === "rechazado") return "Rechazado"
-  if (e === "esperando" || e.includes("esperando")) return "Esperando recepción"
+  if (e.includes("esperando")) return "Esperando recepción"
   if (e === "sin revisar" || e === "no revisado") return "Sin revisar"
   return "Sin revisar"
 }
 
+// ================= CLUSTER CUSTOM OPTIMIZADO =================
 const CustomClusterLayer = ({ reportes }) => {
   const map = useMap()
+  const clusterRef = useRef(null)
 
   useEffect(() => {
     if (!map) return
 
-    // Crear cluster group con opciones optimizadas
+    if (clusterRef.current) {
+      map.removeLayer(clusterRef.current)
+      clusterRef.current = null
+    }
+
     const clusterGroup = L.markerClusterGroup({
       maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true,
-      animate: false, // desactiva animación costosa
+      animate: false,
       chunkedLoading: true,
       chunkInterval: 200,
       chunkDelay: 50,
+      iconCreateFunction: (cluster) => {
+        const count = cluster.getChildCount()
+        let size = "small"
+        if (count > 100) size = "large"
+        else if (count > 10) size = "medium"
+        return new L.DivIcon({
+          html: `<div><span>${count}</span></div>`,
+          className: `marker-cluster marker-cluster-${size}`,
+          iconSize: new L.Point(40, 40),
+        })
+      },
     })
 
-    // Prepara un array de marcadores para bulk
     const markers = reportes.map((r) => {
-      const lat = r.lat, lng = r.lng
       const icon = ICONS[r.estadoUI] || ICONS.default
-      const marker = L.marker([lat, lng], { icon })
+      const marker = L.marker([r.lat, r.lng], { icon })
       const popupHtml = `
         <div data-id="popup-${r.id}">
           <strong>${r.tipo_reporte || "Tipo no definido"}</strong><br/>
@@ -101,16 +117,15 @@ const CustomClusterLayer = ({ reportes }) => {
       return marker
     })
 
-    // Añade todos juntos
     clusterGroup.addLayers(markers)
-
     map.addLayer(clusterGroup)
-    map._markerClusterGroup = clusterGroup
+    clusterRef.current = clusterGroup
+    map._clusterGroupRef = clusterRef
 
     return () => {
-      if (map._markerClusterGroup) {
-        map.removeLayer(map._markerClusterGroup)
-        delete map._markerClusterGroup
+      if (clusterRef.current) {
+        map.removeLayer(clusterRef.current)
+        clusterRef.current = null
       }
     }
   }, [map, reportes])
@@ -118,34 +133,65 @@ const CustomClusterLayer = ({ reportes }) => {
   return null
 }
 
+// ================= IR AL MARCADOR =================
 const IrAlMarcador = ({ reporte }) => {
   const map = useMap()
+
   useEffect(() => {
     if (!reporte || !map) return
     if (!Number.isFinite(reporte.lat) || !Number.isFinite(reporte.lng)) return
 
     map.flyTo([reporte.lat, reporte.lng], 15, { animate: true })
 
-    setTimeout(() => {
-      const marker = map._markerClusterGroup?.getLayers()?.find(
-        (m) => m.getLatLng().lat === reporte.lat && m.getLatLng().lng === reporte.lng
-      )
-      if (marker) {
-        map._markerClusterGroup.zoomToShowLayer(marker, () => {
-          marker.openPopup()
-        })
+    const buscarYAbrirMarcador = () => {
+      const clusterGroup = map._clusterGroupRef?.current
+      if (!clusterGroup) return
+
+      let marcadorEncontrado = null
+
+      clusterGroup.eachLayer((marker) => {
+        const mLat = marker.getLatLng().lat
+        const mLng = marker.getLatLng().lng
+        if (
+          Math.abs(mLat - reporte.lat) < 0.0001 &&
+          Math.abs(mLng - reporte.lng) < 0.0001
+        ) {
+          marcadorEncontrado = marker
+        }
+      })
+
+      if (marcadorEncontrado) {
+        const parent = clusterGroup.getVisibleParent(marcadorEncontrado)
+        if (parent && parent !== marcadorEncontrado) {
+          clusterGroup.zoomToShowLayer(marcadorEncontrado, () => {
+            setTimeout(() => marcadorEncontrado.openPopup(), 300)
+          })
+        } else {
+          marcadorEncontrado.openPopup()
+        }
+
+        // Scroll suave al popup
+        setTimeout(() => {
+          const popupEl = document.querySelector(`[data-id="popup-${reporte.id}"]`)
+          if (popupEl) popupEl.scrollIntoView({ behavior: "smooth", block: "center" })
+        }, 600)
       }
-    }, 400)
+    }
+
+    setTimeout(buscarYAbrirMarcador, 400)
   }, [reporte, map])
+
   return null
 }
 
+// ================= COMPONENTE PRINCIPAL =================
 const MapaReportes = ({ filtrosActivos = [], marcadorSeleccionado }) => {
   const [reportes, setReportes] = useState([])
   const [mapCenter, setMapCenter] = useState([19.23, -99.20])
 
   useEffect(() => {
     const API_URL = (process.env.REACT_APP_API_URL || "http://localhost/api") + "/obtener_reportes.php"
+
     axios
       .get(API_URL, { headers: { Accept: "application/json" } })
       .then((res) => {
@@ -155,9 +201,10 @@ const MapaReportes = ({ filtrosActivos = [], marcadorSeleccionado }) => {
             let lat = Number(r.lat)
             let lng = Number(r.lng)
             if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-              // fallback parse ubicación
               if (r.ubicacion && String(r.ubicacion).includes(",")) {
-                const [a, b] = String(r.ubicacion).split(",").map((x) => Number(x))
+                const [a, b] = String(r.ubicacion)
+                  .split(",")
+                  .map((x) => Number(x))
                 if (Number.isFinite(a) && Number.isFinite(b)) {
                   lat = a
                   lng = b
@@ -170,19 +217,21 @@ const MapaReportes = ({ filtrosActivos = [], marcadorSeleccionado }) => {
           })
           .filter(Boolean)
         setReportes(datos)
-        if (datos.length) {
-          setMapCenter([datos[0].lat, datos[0].lng])
-        }
+        if (datos.length > 0) setMapCenter([datos[0].lat, datos[0].lng])
       })
-      .catch((err) => console.error("Error cargar reportes:", err))
+      .catch((err) => console.error("❌ Error al cargar reportes:", err))
   }, [])
 
-  // aplica filtros locales si los usas (sin afectar mapa)
   const visibles = useMemo(() => {
     if (!filtrosActivos?.length) return reportes
     const setFilt = new Set(filtrosActivos.map((f) => estadoVisual(f)))
     return reportes.filter((r) => setFilt.has(r.estadoUI))
   }, [reportes, filtrosActivos])
+
+  const reporteSeleccionado = useMemo(
+    () => reportes.find((r) => r.id === marcadorSeleccionado),
+    [reportes, marcadorSeleccionado]
+  )
 
   return (
     <div className="mapa-card" id="mapa-reportes">
@@ -199,7 +248,7 @@ const MapaReportes = ({ filtrosActivos = [], marcadorSeleccionado }) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <CustomClusterLayer reportes={visibles} />
-        {marcadorSeleccionado && <IrAlMarcador reporte={marcadorSeleccionado} />}
+        {reporteSeleccionado && <IrAlMarcador reporte={reporteSeleccionado} />}
       </MapContainer>
     </div>
   )
